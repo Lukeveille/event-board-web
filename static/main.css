@@ -2,3 +2,42 @@ body {
   text-align: center;
   font-family: Arial, Helvetica, sans-serif;
 }
+button {
+  transition: .25s;
+}
+button:hover {
+  background-color: #ddd;
+  border-color: #444;
+  color: #000;
+}
+.relative {
+  position: relative;
+}
+.form-display-feedback {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.form-display button,
+.form-display textarea,
+.form-display input {
+  margin: 1em auto;
+  display: block;
+  width: 100%;
+  padding: .3em .8em;
+  font-size: 16px;
+  line-height: 1.42857143;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.glyphicon {
+  cursor: pointer;
+  pointer-events: all;
+}

@@ -12,7 +12,7 @@ export default props => (
     </Link>
     <Link href="/new-event"><a>+ New Event</a></Link>
     <section>
-      <Link href="/"><a>Login</a></Link>
+      <Link href="/login"><a>Login</a></Link>
       &nbsp;/&nbsp;
       <Link href="/"><a>Signup</a></Link>
     </section>
