@@ -1,27 +1,77 @@
-    
 import fetch from 'isomorphic-unfetch';
+import auth from '../utils/auth';
+import Link from 'next/link';
 import Router from 'next/router';
+import Layout from '../components/Layout';
+import Header from '../components/Header';
+import dateTimeString from '../utils/date-time-string';
 import { useState } from 'react';
-import { handleAuthSSR } from '../utils/auth';
 
 const Index = props => {
-  const stuff = Object.values(props),
-  [events, setEvents] = useState(stuff.slice(0, stuff.length-1) || []);
-
-  console.log(events)
+  const fetchEvents = Object.values(props),
+  displayLimit = 25,
+  [events, setEvents] = useState(fetchEvents.slice(0, fetchEvents.length-1) || []);
 
   return (
-    <div>
-      <h1>Events</h1>
-      {events.map(event => {
-        return <p key={event.id}>{event.name}</p>
-      })}
-    </div>
+    <Layout>
+      <Header />
+      <h1>All Events</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Start Time</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Attending</th>
+            <th>Image</th>
+          </tr>
+        </thead>
+        <tbody>
+        {events.map(event => {
+          const [dateString, timeString] = dateTimeString(event.start);
+          return (
+            <Link href="/[event]" as={`${event.id}`} key={event.id}>
+            <tr
+              className="event-listing"
+            >
+              <td>{dateString}</td>
+              <td>{timeString}</td>
+              <td>{event.name}</td>
+              <td>{event.description.length > displayLimit? event.description.slice(0, displayLimit) + '...' : event.description}</td>
+              <td>{/*event.users.length*/} / {event.limit}</td>
+              <td>
+                <img src={`http://${event.image_link}`} alt={event.name}/>
+              </td>
+            </tr>
+            </Link>
+          )
+        })}
+        </tbody>
+      </table>
+      <style jsx>{`
+        table {
+          margin: 1rem auto;
+        }
+        tr {
+          outline: 1px solid #666
+        }
+        td, th {
+          padding: 1rem;
+        }
+        .event-listing {
+          cursor: pointer;
+        }
+        img {
+          max-width: 5rem;
+        }
+      `}</style>
+    </Layout>
   )
 };
 
 Index.getInitialProps = async function (ctx) {
-  const [headers, server] = handleAuthSSR(ctx);
+  const [headers, server] = auth(ctx);
   try {
     const res = await fetch(server + 'events', headers);
     return await res.json();
