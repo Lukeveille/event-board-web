@@ -12,8 +12,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "isomorphic-unfetch": "^3.0.0",
     "next": "^9.0.5",
     "react": "^16.9.0",
+    "react-cookie": "^4.0.1",
     "react-dom": "^16.9.0"
   }
 }
