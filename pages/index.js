@@ -39,7 +39,7 @@ const Index = props => {
               <td>{timeString}</td>
               <td>{event.name}</td>
               <td>{event.description.length > displayLimit? event.description.slice(0, displayLimit) + '...' : event.description}</td>
-              <td>{/*event.users.length*/} / {event.limit}</td>
+              <td>{event.users_attending.length} / {event.limit}</td>
               <td>
                 <img src={`http://${event.image_link}`} alt={event.name}/>
               </td>

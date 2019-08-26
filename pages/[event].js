@@ -2,28 +2,41 @@ import fetch from 'isomorphic-unfetch';
 import auth from '../utils/auth';
 import dateTimeString from '../utils/date-time-string';
 import Link from 'next/link';
+import { useState } from 'react';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
 
 const Event = props => {
+  const [attending, setAttending] = useState(false)
   return (
     <Layout>
       <Header />
       <div className="event-display">
-        <main>
+        <div className="event-header">
           <h3>- {props.category_name} -</h3>
           <h1>{props.name}</h1>
+        </div>
+        <main>
           <img src={`http://${props.image_link}`} />
           <h3>Starts {dateTimeString(props.start)[1]} {dateTimeString(props.start)[0]}</h3>
           <p>{props.description}</p>
           <h3>Ends {dateTimeString(props.end)[1]} {dateTimeString(props.end)[0]}</h3>
-          <Link href="/"><a>&lt; All Events</a></Link>
         </main>
         <aside>
           <article>
             <h2>Event Host</h2>
             <h3>{props.user.full_name}</h3>
             <h3>{props.user.email}</h3>
+          </article>
+          <article>
+            <button
+              disabled={attending}
+              onClick={() => setAttending(true)}
+            >
+              {attending? 'You are going' : 'I would like to attend'}
+            </button>
+            <p>({props.limit - props.users_attending.length} Spots Left)</p>
+            <p>Capacity {props.limit}</p>
           </article>
           <article>
             <h2>Attending</h2>
@@ -34,8 +47,14 @@ const Event = props => {
             </ul>
           </article>
         </aside>
+        <footer>
+          <Link href="/"><a>&lt; All Events</a></Link>
+        </footer>
       </div>
       <style jsx>{`
+        p {
+          margin .5rem;
+        }
         h2, h3 {
           margin: 1rem;
         }
@@ -47,11 +66,15 @@ const Event = props => {
           list-style: none;
         }
         article {
-          padding-top: 5rem;
+          padding-bottom: 5rem;
         }
         .event-display {
           display: grid;
           grid-template-columns: 3fr 1fr;
+          grid-template-rowss: 1fr 1fr;
+        }
+        .event-header, footer {
+          grid-column: span 2;
         }
       `}</style>
     </Layout>
