@@ -13,7 +13,9 @@ const Event = props => {
   [users, setUsers] = useState(props.event.users_attending),
   userIds = props.event.users_attending.map(user => user.id),
   [attending, setAttending] = useState(userIds.includes(props.user.id)),
-  atLimit = props.event.limit === props.event.users_attending.length;
+  atLimit = props.event.limit === props.event.users_attending.length,
+  upcoming = dateTimeString(props.event.start)[2] > Date.now(),
+  over = dateTimeString(props.event.end)[2] > Date.now();
 
   return (
     <Layout>
@@ -25,9 +27,9 @@ const Event = props => {
         </div>
         <main>
           {props.event.image_link? <img src={props.event.image_link} /> : ''}
-          <h3>Starts {dateTimeString(props.event.start)[1]} {dateTimeString(props.event.start)[0]}</h3>
+          {over? <h3>{upcoming? 'Starts' : 'This event started at '} {dateTimeString(props.event.start)[1]} {dateTimeString(props.event.start)[0]}</h3> : ''}
           <p>{props.event.description}</p>
-          <h3>Ends {dateTimeString(props.event.end)[1]} {dateTimeString(props.event.end)[0]}</h3>
+          <h3>{over? 'Ends ' + dateTimeString(props.event.end)[1] : 'This event ended '} {dateTimeString(props.event.end)[0]}</h3>
         </main>
         <aside>
           <article>
@@ -40,7 +42,7 @@ const Event = props => {
             {props.user.error? '' :
             <div className="form-display">
               <button
-                disabled={owner || attending || atLimit? true : false}
+                disabled={owner || attending || atLimit || !upcoming? true : false}
                 onClick={() => {
                   serverCall('POST', 'attendings', { event_id: props.event.id }).then(() => {
                     setUsers([...users, props.user]);
@@ -48,7 +50,13 @@ const Event = props => {
                   });
                 }}
               >
-                {atLimit? 'Event is at capacity' : owner? 'This is your event' : attending? 'You are attending' : 'I would like to attend'}
+                {
+                  atLimit? 'Event is at capacity' :
+                  owner? 'This is your event' :
+                  attending? 'You are attending' :
+                  upcoming? 'I would like to attend' :
+                  over? 'This event has started' : 'This event has ended'
+                }
               </button>
               {owner? '' : attending? <a
                 onClick={() => {
@@ -94,7 +102,7 @@ const Event = props => {
         button {
           max-width: 12rem;
         }
-        ${owner || attending || atLimit? `
+        ${owner || attending || atLimit || !upcoming? `
         button {
           color: #ddd;
         }

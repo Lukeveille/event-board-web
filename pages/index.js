@@ -9,7 +9,7 @@ import { useState } from 'react';
 
 const Index = props => {
   const displayLimit = 25,
-  [events, setEvents] = useState(props.events || []),
+  [events, setEvents] = useState(props.events.sort((a, b) => dateTimeString(a.start)[2] - dateTimeString(b.start)[2]) || []),
   [filter, setFilter] = useState('none');
 
   let categories = events.map(event => event.category_name);
@@ -39,11 +39,11 @@ const Index = props => {
         <thead>
           <tr>
             <th>Date</th>
-            <th>Host</th>
             <th>Start Time</th>
             <th>Name</th>
-            <th>Attending</th>
             <th>Image</th>
+            <th>Attending</th>
+            <th>Host</th>
             <th>Category</th>
           </tr>
         </thead>
@@ -63,14 +63,14 @@ const Index = props => {
                 }}
               >
                 <td>{dateString}</td>
-                {owner?<th>You</th> : <td>{event.user.full_name}</td>}
                 <td>{timeString}</td>
                 <td>{event.name}</td>
-                {attending? <th>{event.users_attending.length} / {event.limit}</th> :
-                <td>{event.users_attending.length} / {event.limit}</td>}
                 <td>
                   {event.image_link? <img src={event.image_link} alt={event.name}/> : ''}
                 </td>
+                {attending? <th>{event.users_attending.length} / {event.limit}</th> :
+                <td>{event.users_attending.length} / {event.limit}</td>}
+                {owner?<th>You</th> : <td>{event.user.full_name}</td>}
                 <td>{event.category_name}</td>
               </tr>
             </Link>

@@ -11,7 +11,7 @@ export default (datetime) => {
   datetimeArray = datetime.split('T')[0].split('-').concat(datetime.split('T')[1].split(':')),
   utc = Date.UTC(
     datetimeArray[0],
-    datetimeArray[1],
+    parseInt(datetimeArray[1])-1,
     datetimeArray[2],
     datetimeArray[3],
     datetimeArray[4]
