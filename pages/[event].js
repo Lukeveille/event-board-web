@@ -12,7 +12,8 @@ const Event = props => {
   const owner = props.user.id === props.event.user.id,
   [users, setUsers] = useState(props.event.users_attending),
   userIds = props.event.users_attending.map(user => user.id),
-  [attending, setAttending] = useState(userIds.includes(props.user.id));
+  [attending, setAttending] = useState(userIds.includes(props.user.id)),
+  atLimit = props.event.limit === props.event.users_attending.length;
 
   return (
     <Layout>
@@ -23,7 +24,7 @@ const Event = props => {
           <h1>{props.event.name}</h1>
         </div>
         <main>
-          {props.event.image_link? <img src={`http://${props.event.image_link}`} /> : ''}
+          {props.event.image_link? <img src={props.event.image_link} /> : ''}
           <h3>Starts {dateTimeString(props.event.start)[1]} {dateTimeString(props.event.start)[0]}</h3>
           <p>{props.event.description}</p>
           <h3>Ends {dateTimeString(props.event.end)[1]} {dateTimeString(props.event.end)[0]}</h3>
@@ -38,7 +39,7 @@ const Event = props => {
             {props.user.error? '' :
             <div className="form-display">
               <button
-                disabled={attending}
+                disabled={owner || attending || atLimit? true : false}
                 onClick={() => {
                   serverCall('POST', 'attendings', { event_id: props.event.id }).then(() => {
                     setUsers([...users, props.user]);
@@ -46,7 +47,7 @@ const Event = props => {
                   });
                 }}
               >
-                {owner? 'This is your event' : attending? 'You are going' : 'I would like to attend'}
+                {atLimit? 'Event is at capacity' : owner? 'This is your event' : attending? 'You are attending' : 'I would like to attend'}
               </button>
               {owner? '' : attending? <a
                 onClick={() => {
@@ -85,7 +86,7 @@ const Event = props => {
           margin: 1rem;
         }
         img {
-          max-width: 10rem;
+          max-width: 35em;
         }
         ul {
           padding: 0;
@@ -94,8 +95,16 @@ const Event = props => {
         button {
           max-width: 12rem;
         }
+        ${owner || attending || atLimit? `
+        button {
+          color: #ddd;
+        }
+        button:hover {
+          background-color: #fff;
+          color: #ddd;
+        }` : ''}
         article {
-          padding-bottom: 5rem;
+          padding-bottom: 2rem;
         }
         .event-display {
           display: grid;
