@@ -2,13 +2,13 @@ import Link from 'next/link';
 import { Cookies } from 'react-cookie';
 import Router from 'next/router';
 
-const Header = props => {
+export default props => {
   const cookies = new Cookies();
   return (
     <header style={{
       display: 'flex',
       justifyContent: 'space-between',
-      borderBottom: '1px solid #666',
+      borderBottom: '1px solid #ddd',
       padding: '1rem'
     }}>
       <Link href="/">
@@ -53,5 +53,3 @@ const Header = props => {
     </header>
   );
 };
-
-export default Header;

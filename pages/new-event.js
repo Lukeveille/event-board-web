@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Router from 'next/router';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 import { useState } from 'react';
 
 // DRY me up
@@ -17,8 +18,6 @@ const NewEvent = props => {
     lat: '',
     long: '',
   });
-  console.log(props)
-  // if (!props.user || props.user.error) Router.push('/');
   return (
     <Layout>
       <Header user={props}/>
@@ -101,10 +100,8 @@ const NewEvent = props => {
           }
         `}</style>
         <button>Create Event</button>
-        <footer>
-          <Link href="/"><a>&lt; All Events</a></Link>
-        </footer>
       </form>
+      <Footer />
     </Layout>
   );
 };

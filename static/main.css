@@ -27,6 +27,7 @@ button:hover {
 
 .form-display button,
 .form-display textarea,
+.form-display select,
 .form-display input {
   margin: 1em auto;
   display: block;

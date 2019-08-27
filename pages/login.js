@@ -2,6 +2,7 @@ import fetch from 'isomorphic-unfetch';
 import auth from '../utils/auth';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 import serverCall from '../utils/server-call';
 import Router from 'next/router';
 import { useRouter } from 'next/router';
@@ -96,6 +97,7 @@ const Login = () => {
           }
         `}</style>
       </div>}
+      <Footer />
     </Layout>
   );
 };

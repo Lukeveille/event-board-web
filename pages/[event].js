@@ -2,11 +2,11 @@ import fetch from 'isomorphic-unfetch';
 import auth from '../utils/auth';
 import serverCall from '../utils/server-call';
 import dateTimeString from '../utils/date-time-string';
-import Link from 'next/link';
 import Router from 'next/router';
 import { useState } from 'react';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 const Event = props => {
   const owner = props.user.id === props.event.user.id,
@@ -33,9 +33,10 @@ const Event = props => {
           <article>
             <h2>Event Host</h2>
             <h3>{props.event.user.full_name}</h3>
-            <h3>{props.event.user.email}</h3>
+            <p>member since {dateTimeString(props.event.user.created_at)[0]}</p>
+            {props.user.error? '' : <h3>{props.event.user.email}</h3>}
           </article>
-          <article>
+          <article style={{padding: 0}}>
             {props.user.error? '' :
             <div className="form-display">
               <button
@@ -59,11 +60,11 @@ const Event = props => {
               >I can no longer attend</a> : ''}
             </div>
             }
-            <p>({props.event.limit - users.length} Spots Left)</p>
+            <p style={{margin: 0}}>({props.event.limit - users.length} Spots Left)</p>
             <p>Capacity {props.event.limit}</p>
           </article>
           <article>
-            <h2>Attending</h2>
+            <h2>{users.length} Attending</h2>
             <ul>
               {users.map(user => {
                 return <li key={user.id}>{user.full_name}</li>
@@ -71,19 +72,17 @@ const Event = props => {
             </ul>
           </article>
         </aside>
-        <footer>
-          <Link href="/"><a>&lt; All Events</a></Link>
-        </footer>
+        <Footer />
       </div>
       <style jsx>{`
         a {
           cursor: pointer;
         }
-        p {
-          margin .5rem;
+        p, h2 {
+          margin-top 0rem;
         }
-        h2, h3 {
-          margin: 1rem;
+        h3 {
+          margin: 0;
         }
         img {
           max-width: 35em;
@@ -111,7 +110,7 @@ const Event = props => {
           grid-template-columns: 3fr 1fr;
           grid-template-rowss: 1fr 1fr;
         }
-        .event-header, footer {
+        .event-header {
           grid-column: span 2;
         }
       `}</style>

@@ -9,42 +9,72 @@ import { useState } from 'react';
 
 const Index = props => {
   const displayLimit = 25,
-  [events, setEvents] = useState(props.events || []);
+  [events, setEvents] = useState(props.events || []),
+  [filter, setFilter] = useState('none');
+
+  let categories = events.map(event => event.category_name);
+  categories = categories.filter((item, index) => categories.indexOf(item) === index);
 
   return (
     <Layout>
       <Header user={props.user} new={props.user}/>
-      <h1>All Events</h1>
+      <div className="form-display">
+        <select
+          style={{
+            maxWidth: '12rem',
+            fontSize: '2rem',
+            padding: '.5rem'
+          }}
+          onChange={event => {
+            setFilter(event.target.value)
+          }}
+        >
+          <option value={'none'}>All Events</option>
+          {categories.map(category => {
+            return <option key={category} value={category}>{category}</option>
+          })}
+        </select>
+      </div>
       <table>
         <thead>
           <tr>
             <th>Date</th>
+            <th>Host</th>
             <th>Start Time</th>
             <th>Name</th>
-            <th>Description</th>
             <th>Attending</th>
             <th>Image</th>
+            <th>Category</th>
           </tr>
         </thead>
         <tbody>
         {events.map(event => {
-          const [dateString, timeString] = dateTimeString(event.start);
-          return (
+          const [dateString, timeString, utc] = dateTimeString(event.start),
+          owner = props.user.id === event.user.id,
+          attending = event.users_attending.map(user => user.id).includes(props.user.id),
+          upcoming = utc > Date.now();
+          
+          return upcoming && filter === 'none' || filter === event.category_name? (
             <Link href="/[event]" as={`${event.id}`} key={event.id}>
-            <tr
-              className="event-listing"
-            >
-              <td>{dateString}</td>
-              <td>{timeString}</td>
-              <td>{event.name}</td>
-              <td>{event.description? event.description.length > displayLimit? event.description.slice(0, displayLimit) + '...' : event.description : ''}</td>
-              <td>{event.users_attending.length} / {event.limit}</td>
-              <td>
-                {event.image_link? <img src={event.image_link} alt={event.name}/> : ''}
-              </td>
-            </tr>
+              <tr
+                className="event-listing"
+                style={{
+                  backgroundColor: attending? owner? '#eef' : '#efe' : '#fff'
+                }}
+              >
+                <td>{dateString}</td>
+                {owner?<th>You</th> : <td>{event.user.full_name}</td>}
+                <td>{timeString}</td>
+                <td>{event.name}</td>
+                {attending? <th>{event.users_attending.length} / {event.limit}</th> :
+                <td>{event.users_attending.length} / {event.limit}</td>}
+                <td>
+                  {event.image_link? <img src={event.image_link} alt={event.name}/> : ''}
+                </td>
+                <td>{event.category_name}</td>
+              </tr>
             </Link>
-          )
+          ) : (null)
         })}
         </tbody>
       </table>

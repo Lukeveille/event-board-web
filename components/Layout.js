@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 
-const Layout = props => {
+export default props => {
   return (
     <div>
       <Head>
@@ -23,5 +23,3 @@ const Layout = props => {
     </div>
   );
 };
-
-export default Layout;

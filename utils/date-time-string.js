@@ -3,9 +3,19 @@ export default (datetime) => {
   dateTimeArray = datetime.split('T'),
   dateArray = dateTimeArray[0].split('-'),
   dateString = `${months[dateArray[1]-1]} ${dateArray[2]}, ${dateArray[0]}`,
+  
   timeArray = dateTimeArray[1].split(':'),
   hour = parseInt(timeArray[0]),
-  timeString = `${hour < 12? hour === 0? 12 : parseInt(timeArray[0]) : parseInt(timeArray[0] - 12)}:${timeArray[1]}${timeArray[0] < 12? 'a' : 'p'}m`;
+  timeString = `${hour < 13? hour == 0? 12 : parseInt(timeArray[0]) : parseInt(timeArray[0] - 12)}:${timeArray[1]}${timeArray[0] < 12? 'a' : 'p'}m`,
 
-  return [dateString, timeString];
+  datetimeArray = datetime.split('T')[0].split('-').concat(datetime.split('T')[1].split(':')),
+  utc = Date.UTC(
+    datetimeArray[0],
+    datetimeArray[1],
+    datetimeArray[2],
+    datetimeArray[3],
+    datetimeArray[4]
+  );
+
+  return [dateString, timeString, utc];
 };
