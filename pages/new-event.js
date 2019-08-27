@@ -1,9 +1,13 @@
+import fetch from 'isomorphic-unfetch';
+import auth from '../utils/auth';
+import Link from 'next/link';
+import Router from 'next/router';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
 import { useState } from 'react';
 
 // DRY me up
-export default () => {
+const NewEvent = props => {
   const [newEvent, setNewEvent] = useState({
     name: '',
     description: '',
@@ -12,10 +16,12 @@ export default () => {
     end: '2019-08-29T15:30:00Z',
     lat: '',
     long: '',
-  })
+  });
+  console.log(props)
+  // if (!props.user || props.user.error) Router.push('/');
   return (
     <Layout>
-      <Header />
+      <Header user={props}/>
       <h1>Create a New Event</h1>
       <form className="form-display">
         <input
@@ -95,7 +101,35 @@ export default () => {
           }
         `}</style>
         <button>Create Event</button>
+        <footer>
+          <Link href="/"><a>&lt; All Events</a></Link>
+        </footer>
       </form>
     </Layout>
   );
 };
+
+NewEvent.getInitialProps = async function (ctx) {
+  const [headers, server] = auth(ctx);
+  try {
+    const userRes = await fetch(server + 'users', headers),
+    data = await userRes.json();
+    if (data.error) {
+      Router.push('/');
+    } else {
+      return data;
+    }
+  } catch (err) {
+    console.error(err)
+    if (ctx.res) {
+      ctx.res.writeHead(302, {
+        Location: '/'
+      });
+      ctx.res.end();
+    } else {
+      Router.push('/');
+    };
+  };
+};
+
+export default NewEvent;

@@ -10,7 +10,7 @@ export default (ctx) => {
   if (ctx && ctx.req && ctx.req.headers.cookie) {
     token = ctx.req.headers.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
   } else {
-    token = cookies.get('auth_token');
+    token = cookies.get('token');
   };
 
   return [{ headers: { Authorization: 'Bearer ' + token } }, server];

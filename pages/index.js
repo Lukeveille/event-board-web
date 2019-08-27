@@ -8,13 +8,12 @@ import dateTimeString from '../utils/date-time-string';
 import { useState } from 'react';
 
 const Index = props => {
-  const fetchEvents = Object.values(props),
-  displayLimit = 25,
-  [events, setEvents] = useState(fetchEvents.slice(0, fetchEvents.length-1) || []);
+  const displayLimit = 25,
+  [events, setEvents] = useState(props.events || []);
 
   return (
     <Layout>
-      <Header />
+      <Header user={props.user} new={props.user}/>
       <h1>All Events</h1>
       <table>
         <thead>
@@ -73,8 +72,12 @@ const Index = props => {
 Index.getInitialProps = async function (ctx) {
   const [headers, server] = auth(ctx);
   try {
-    const res = await fetch(server + 'events', headers);
-    return await res.json();
+    const eventRes = await fetch(`${server}events`, headers),
+    userRes = await fetch(server + 'users', headers),
+    events = await eventRes.json(),
+    user = await userRes.json();
+
+    return {events, user};
   } catch (err) {
     console.error(err)
     if (ctx.res) {

@@ -2,46 +2,48 @@ import fetch from 'isomorphic-unfetch';
 import auth from '../utils/auth';
 import dateTimeString from '../utils/date-time-string';
 import Link from 'next/link';
+import Router from 'next/router';
 import { useState } from 'react';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
 
 const Event = props => {
-  const [attending, setAttending] = useState(false)
+  const [attending, setAttending] = useState(false);
+  console.log(props);
   return (
     <Layout>
-      <Header />
+      <Header user={props.user} new={props.user}/>
       <div className="event-display">
         <div className="event-header">
-          <h3>- {props.category_name} -</h3>
-          <h1>{props.name}</h1>
+          <h3>- {props.event.category_name} -</h3>
+          <h1>{props.event.name}</h1>
         </div>
         <main>
-          <img src={`http://${props.image_link}`} />
-          <h3>Starts {dateTimeString(props.start)[1]} {dateTimeString(props.start)[0]}</h3>
-          <p>{props.description}</p>
-          <h3>Ends {dateTimeString(props.end)[1]} {dateTimeString(props.end)[0]}</h3>
+          <img src={`http://${props.event.image_link}`} />
+          <h3>Starts {dateTimeString(props.event.start)[1]} {dateTimeString(props.event.start)[0]}</h3>
+          <p>{props.event.description}</p>
+          <h3>Ends {dateTimeString(props.event.end)[1]} {dateTimeString(props.event.end)[0]}</h3>
         </main>
         <aside>
           <article>
             <h2>Event Host</h2>
-            <h3>{props.user.full_name}</h3>
-            <h3>{props.user.email}</h3>
+            <h3>{props.event.user.full_name}</h3>
+            <h3>{props.event.user.email}</h3>
           </article>
           <article>
-            <button
+            {props.user.error? '' : <button
               disabled={attending}
               onClick={() => setAttending(true)}
             >
               {attending? 'You are going' : 'I would like to attend'}
-            </button>
-            <p>({props.limit - props.users_attending.length} Spots Left)</p>
-            <p>Capacity {props.limit}</p>
+            </button>}
+            <p>({props.event.limit - props.event.users_attending.length} Spots Left)</p>
+            <p>Capacity {props.event.limit}</p>
           </article>
           <article>
             <h2>Attending</h2>
             <ul>
-              {props.users_attending.map(user => {
+              {props.event.users_attending.map(user => {
                 return <li key={user.id}>{user.full_name}</li>
               })}
             </ul>
@@ -85,10 +87,11 @@ Event.getInitialProps = async function (ctx) {
   const { event } = ctx.query,
   [headers, server] = auth(ctx);
   try {
-    const res = await fetch(`${server}events/${event}`, headers);
-
-    return await res.json();
-    
+    const eventRes = await fetch(`${server}events/${event}`, headers),
+    userRes = await fetch(`${server}users`, headers),
+    user = await userRes.json(),
+    eventData = await eventRes.json();
+    return { event: eventData, user }
   } catch (err) {
     console.error(err)
     if (ctx.res) {
