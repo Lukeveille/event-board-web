@@ -44,7 +44,7 @@ const Header = props => {
           cursor: pointer;
         }
         .new-event {
-          margin-left: -10rem;
+          margin-left: -15rem;
         }
         .logo {
           cursor: pointer

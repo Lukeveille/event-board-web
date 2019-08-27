@@ -1,5 +1,6 @@
 import fetch from 'isomorphic-unfetch';
 import auth from '../utils/auth';
+import serverCall from '../utils/server-call';
 import dateTimeString from '../utils/date-time-string';
 import Link from 'next/link';
 import Router from 'next/router';
@@ -8,8 +9,11 @@ import Layout from '../components/Layout';
 import Header from '../components/Header';
 
 const Event = props => {
-  const [attending, setAttending] = useState(false);
-  console.log(props);
+  const owner = props.user.id === props.event.user.id,
+  [users, setUsers] = useState(props.event.users_attending),
+  userIds = props.event.users_attending.map(user => user.id),
+  [attending, setAttending] = useState(userIds.includes(props.user.id));
+
   return (
     <Layout>
       <Header user={props.user} new={props.user}/>
@@ -19,7 +23,7 @@ const Event = props => {
           <h1>{props.event.name}</h1>
         </div>
         <main>
-          <img src={`http://${props.event.image_link}`} />
+          {props.event.image_link? <img src={`http://${props.event.image_link}`} /> : ''}
           <h3>Starts {dateTimeString(props.event.start)[1]} {dateTimeString(props.event.start)[0]}</h3>
           <p>{props.event.description}</p>
           <h3>Ends {dateTimeString(props.event.end)[1]} {dateTimeString(props.event.end)[0]}</h3>
@@ -31,19 +35,36 @@ const Event = props => {
             <h3>{props.event.user.email}</h3>
           </article>
           <article>
-            {props.user.error? '' : <button
-              disabled={attending}
-              onClick={() => setAttending(true)}
-            >
-              {attending? 'You are going' : 'I would like to attend'}
-            </button>}
-            <p>({props.event.limit - props.event.users_attending.length} Spots Left)</p>
+            {props.user.error? '' :
+            <div className="form-display">
+              <button
+                disabled={attending}
+                onClick={() => {
+                  serverCall('POST', 'attendings', { event_id: props.event.id }).then(() => {
+                    setUsers([...users, props.user]);
+                    setAttending(true);
+                  });
+                }}
+              >
+                {owner? 'This is your event' : attending? 'You are going' : 'I would like to attend'}
+              </button>
+              {owner? '' : attending? <a
+                onClick={() => {
+                  serverCall('DELETE', 'attendings', { event_id: props.event.id }).then(res => {
+                    setAttending(false);
+                    setUsers(users.filter(user => (user.id !== props.user.id)));
+                  });
+                }}
+              >I can no longer attend</a> : ''}
+            </div>
+            }
+            <p>({props.event.limit - users.length} Spots Left)</p>
             <p>Capacity {props.event.limit}</p>
           </article>
           <article>
             <h2>Attending</h2>
             <ul>
-              {props.event.users_attending.map(user => {
+              {users.map(user => {
                 return <li key={user.id}>{user.full_name}</li>
               })}
             </ul>
@@ -54,6 +75,9 @@ const Event = props => {
         </footer>
       </div>
       <style jsx>{`
+        a {
+          cursor: pointer;
+        }
         p {
           margin .5rem;
         }
@@ -66,6 +90,9 @@ const Event = props => {
         ul {
           padding: 0;
           list-style: none;
+        }
+        button {
+          max-width: 12rem;
         }
         article {
           padding-bottom: 5rem;
@@ -81,7 +108,7 @@ const Event = props => {
       `}</style>
     </Layout>
   );
-}
+};
 
 Event.getInitialProps = async function (ctx) {
   const { event } = ctx.query,
