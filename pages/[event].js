@@ -9,82 +9,82 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const Event = props => {
-  const owner = props.user.id === props.event.user.id,
+  const owner = props.event? false : props.user.id === props.event.user.id,
   [users, setUsers] = useState(props.event.users_attending),
-  userIds = props.event.users_attending.map(user => user.id),
-  [attending, setAttending] = useState(userIds.includes(props.user.id)),
-  [atLimit, setAtLimit] = useState(props.event.limit === props.event.users_attending.length),
-  upcoming = dateTimeString(props.event.start)[2] > Date.now(),
-  over = dateTimeString(props.event.end)[2] > Date.now();
+  userIds = props.event? null : props.event.users_attending.map(user => user.id),
+  [attending, setAttending] = useState(userIds? userIds.includes(props.user.id) : userIds),
+  [atLimit, setAtLimit] = useState(props.event? null : props.event.limit === props.event.users_attending.length),
+  upcoming = props.event? '' : dateTimeString(props.event.start)[2] > Date.now(),
+  over = props.event? '' : dateTimeString(props.event.end)[2] > Date.now(),
 
+  eventDisplay = props.event.error? <h1>404 - Event not found</h1> : <div className="event-display">
+    <div className="event-header">
+      <h3>- {props.event.category_name} -</h3>
+      <h1>{props.event.name}</h1>
+    </div>
+    <main>
+      {props.event.image_link? <img src={props.event.image_link} /> : ''}
+      {over? <h3>{upcoming? 'Starts' : 'This event started at '} {dateTimeString(props.event.start)[1]} {dateTimeString(props.event.start)[0]}</h3> : ''}
+      <p>{props.event.description}</p>
+      <h3>{over? 'Ends ' + dateTimeString(props.event.end)[1] : 'This event ended '} {dateTimeString(props.event.end)[0]}</h3>
+    </main>
+    <aside>
+      <article>
+        <h2>Event Host</h2>
+        <h3>{props.event.user.full_name}</h3>
+        <p>member since {dateTimeString(props.event.user.created_at)[0]}</p>
+        {props.user.error? '' : <h3>{props.event.user.email}</h3>}
+      </article>
+      <article style={{padding: 0}}>
+        {props.user.error? '' :
+        <div className="form-display">
+          <button
+            disabled={owner || attending || atLimit || !upcoming? true : false}
+            onClick={() => {
+              serverCall('POST', 'attendings', { event_id: props.event.id }).then(() => {
+                setUsers([...users, props.user]);
+                setAttending(true);
+              });
+            }}
+          >
+            {
+              owner? 'This is your event' :
+              atLimit? 'Event is at capacity' :
+              attending? 'You are attending' :
+              upcoming? 'I would like to attend' :
+              over? 'This event has started' : 'This event has ended'
+            }
+          </button>
+          {owner? '' : attending? <a
+            onClick={() => {
+              serverCall('DELETE', 'attendings', { event_id: props.event.id }).then(res => {
+                setAttending(false);
+                setAtLimit(false)
+                setUsers(users.filter(user => (user.id !== props.user.id)));
+              });
+            }}
+          >I can no longer attend</a> : ''}
+        </div>
+        }
+        {upcoming? <div>
+          <p style={{margin: 0}}>({props.event.limit - users.length} Spots Left)</p>
+          <p>Capacity {props.event.limit}</p>
+        </div> : ''}
+      </article>
+      <article>
+        <h2>{users.length} Attend{over? 'ing' : 'ed'}</h2>
+        <ul>
+          {users.map(user => {
+            return <li key={user.id}>{user.full_name}</li>
+          })}
+        </ul>
+      </article>
+    </aside>
+  </div>
   return (
     <Layout>
       <Header user={props.user} new={props.user}/>
-      <div className="event-display">
-        <div className="event-header">
-          <h3>- {props.event.category_name} -</h3>
-          <h1>{props.event.name}</h1>
-        </div>
-        <main>
-          {props.event.image_link? <img src={props.event.image_link} /> : ''}
-          {over? <h3>{upcoming? 'Starts' : 'This event started at '} {dateTimeString(props.event.start)[1]} {dateTimeString(props.event.start)[0]}</h3> : ''}
-          <p>{props.event.description}</p>
-          <h3>{over? 'Ends ' + dateTimeString(props.event.end)[1] : 'This event ended '} {dateTimeString(props.event.end)[0]}</h3>
-        </main>
-        <aside>
-          <article>
-            <h2>Event Host</h2>
-            <h3>{props.event.user.full_name}</h3>
-            <p>member since {dateTimeString(props.event.user.created_at)[0]}</p>
-            {props.user.error? '' : <h3>{props.event.user.email}</h3>}
-          </article>
-          <article style={{padding: 0}}>
-            {props.user.error? '' :
-            <div className="form-display">
-              <button
-                disabled={owner || attending || atLimit || !upcoming? true : false}
-                onClick={() => {
-                  serverCall('POST', 'attendings', { event_id: props.event.id }).then(() => {
-                    setUsers([...users, props.user]);
-                    setAttending(true);
-                  });
-                }}
-              >
-                {
-                  owner? 'This is your event' :
-                  atLimit? 'Event is at capacity' :
-                  attending? 'You are attending' :
-                  upcoming? 'I would like to attend' :
-                  over? 'This event has started' : 'This event has ended'
-                }
-              </button>
-              {owner? '' : attending? <a
-                onClick={() => {
-                  serverCall('DELETE', 'attendings', { event_id: props.event.id }).then(res => {
-                    setAttending(false);
-                    setAtLimit(false)
-                    setUsers(users.filter(user => (user.id !== props.user.id)));
-                  });
-                }}
-              >I can no longer attend</a> : ''}
-            </div>
-            }
-            {upcoming? <div>
-              <p style={{margin: 0}}>({props.event.limit - users.length} Spots Left)</p>
-              <p>Capacity {props.event.limit}</p>
-            </div> : ''}
-          </article>
-          <article>
-            <h2>{users.length} Attend{over? 'ing' : 'ed'}</h2>
-            <ul>
-              {users.map(user => {
-                return <li key={user.id}>{user.full_name}</li>
-              })}
-            </ul>
-          </article>
-        </aside>
-        <Footer />
-      </div>
+      {eventDisplay}
       <style jsx>{`
         a {
           cursor: pointer;
@@ -125,6 +125,7 @@ const Event = props => {
           grid-column: span 2;
         }
       `}</style>
+      <Footer />
     </Layout>
   );
 };

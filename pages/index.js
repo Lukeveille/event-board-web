@@ -95,7 +95,7 @@ const Index = props => {
           cursor: pointer;
         }
         img {
-          max-width: 10rem;
+          max-height: 2rem;
         }
       `}</style>
     </Layout>

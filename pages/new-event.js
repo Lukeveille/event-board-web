@@ -6,7 +6,29 @@ import Router from 'next/router';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ReactS3Uploader from 'react-s3-uploader';
 import { useState } from 'react';
+
+const S3Uploader = props => {
+  const addFile = ( file, upload ) => {
+    const filename = file.name.split(/(\\|\/)/g).pop();
+    this.setState(prevState => ({ 
+      filenames: prevState.filenames.concat(filename) 
+    }),
+      () => props.input.onChange(this.state.filenames));
+    upload(file)
+  };
+
+  return <ReactS3Uploader
+    signingUrl={`${auth()[1]}s3/sign`}
+    signingUrlMethod="GET"
+    signingUrlHeaders={props.headers}
+    signingUrlWithCredentials={true}
+    uploadRequestHeaders={{ 'acl': 'public-read' }}
+    contentDisposition="auto"
+    preprocess={addFile}
+  />;
+};
 
 const NewEvent = props => {
   const now = new Date(),
@@ -23,6 +45,7 @@ const NewEvent = props => {
     limit: 10,
     start,
     end,
+    file: 'Select Image',
     lat: '',
     long: '',
   });
@@ -35,11 +58,27 @@ const NewEvent = props => {
         className="form-display"
         onSubmit={event => {
           event.preventDefault();
-          serverCall('POST', 'events', newEvent)
-          .then(res => {
-            console.log(res.id)
-            Router.push(`/${res.id}`);
-          })
+          console.log(newEvent)
+          // serverCall('GET', 's3/direct_post').then(res => {
+          //   console.log(res)
+          //   const formData = new FormData();
+          //   formData.append('file', newEvent.file)
+          //   fetch(res.url, {
+          //     headers: {
+          //       ...res.fields,
+          //       'Content-Type': 'multipart/form-data',
+          //     },
+          //     body: formData,
+          //     mode: 'cors',
+          //     method: 'POST'
+          //   }).then(res => {
+          //     console.log(res)
+          //   })
+          // })
+          // .then(res => {
+          //   console.log(res.id)
+          //   Router.push(`/${res.id}`);
+          // })
         }}
       >
         <select
@@ -96,6 +135,14 @@ const NewEvent = props => {
           value={newEvent.end.split('T')[1].slice(0, 5)}
           onChange={event => setNewEvent({...newEvent, end: `${newEvent.end.split('T')[0]}T${event.target.value}:00Z` })}
         />
+        {/* <input
+          type="file"
+          // value={newEvent.end.split('T')[1].slice(0, 5)}
+          onChange={event => {
+            setNewEvent({...newEvent, file: event.target.files[0] });
+          }}
+        /> */}
+        <S3Uploader headers={{hey: 'hi'}}/>
         {/* <h3>Location</h3>
         <input
           placeholder="Latitude"
