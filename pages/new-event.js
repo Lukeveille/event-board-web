@@ -6,28 +6,36 @@ import Router from 'next/router';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import ReactS3Uploader from 'react-s3-uploader';
 import { useState } from 'react';
 
-const S3Uploader = props => {
-  const addFile = ( file, upload ) => {
-    const filename = file.name.split(/(\\|\/)/g).pop();
-    this.setState(prevState => ({ 
-      filenames: prevState.filenames.concat(filename) 
-    }),
-      () => props.input.onChange(this.state.filenames));
-    upload(file)
-  };
+const handleUpload = async (file, setLoading) => {
+  if (!file) return;
 
-  return <ReactS3Uploader
-    signingUrl={`${auth()[1]}s3/sign`}
-    signingUrlMethod="GET"
-    signingUrlHeaders={props.headers}
-    signingUrlWithCredentials={true}
-    uploadRequestHeaders={{ 'acl': 'public-read' }}
-    contentDisposition="auto"
-    preprocess={addFile}
-  />;
+  setLoading(true);
+
+  const payload = await serverCall('GET', 's3/direct_post').then(res => res);
+
+  console.log(payload)
+
+  const url = payload.url;
+  const formData = new FormData();
+
+  Object.keys(payload.fields).forEach(key =>
+    formData.append(key, payload.fields[key])
+  );
+  formData.append('file', file);
+
+  const xml = await fetch(url, {
+    method: 'POST',
+    body: formData
+  }).then(res => res.text());
+
+  const uploadUrl = new DOMParser()
+  .parseFromString(xml, 'application/xml')
+  .getElementsByTagName('Location')[0].textContent;
+
+  setLoading(false);
+  return uploadUrl;
 };
 
 const NewEvent = props => {
@@ -38,6 +46,7 @@ const NewEvent = props => {
   month = now.getMonth() < 9? `0${now.getMonth()+1}` : now.getMonth()+1,
   start = `${doubleZero(date[3])}-${doubleZero(month)}-${doubleZero(day)}T${doubleZero(hour)}:00`,
   end = `${doubleZero(date[3])}-${doubleZero(month)}-${doubleZero(day+1)}T${doubleZero(hour)}:00`,
+  [loading, setLoading] = useState(false),
   [newEvent, setNewEvent] = useState({
     name: '',
     description: '',
@@ -45,7 +54,7 @@ const NewEvent = props => {
     limit: 10,
     start,
     end,
-    file: 'Select Image',
+    image_link: 'Select Image',
     lat: '',
     long: '',
   });
@@ -56,29 +65,18 @@ const NewEvent = props => {
       <h1>Create a New Event</h1>
       <form
         className="form-display"
-        onSubmit={event => {
+        onSubmit={e => {
           event.preventDefault();
-          console.log(newEvent)
-          // serverCall('GET', 's3/direct_post').then(res => {
-          //   console.log(res)
-          //   const formData = new FormData();
-          //   formData.append('file', newEvent.file)
-          //   fetch(res.url, {
-          //     headers: {
-          //       ...res.fields,
-          //       'Content-Type': 'multipart/form-data',
-          //     },
-          //     body: formData,
-          //     mode: 'cors',
-          //     method: 'POST'
-          //   }).then(res => {
-          //     console.log(res)
-          //   })
-          // })
-          // .then(res => {
-          //   console.log(res.id)
-          //   Router.push(`/${res.id}`);
-          // })
+          handleUpload(newEvent.image_link, setLoading).then(res => {
+            const sendNewEvent = ({...newEvent, image_link: `http://d2b7dtg3ypekdu.cloudfront.net${res.split('com')[1]}`})
+            serverCall('POST', 'events', sendNewEvent).then(res => {
+              if (res.error) {
+                console.error(error)
+              } else {
+                Router.push(`/${res.id}`)
+              }
+            });
+          });
         }}
       >
         <select
@@ -87,8 +85,8 @@ const NewEvent = props => {
             fontSize: '2rem',
             padding: '.5rem'
           }}
-          onChange={event => {
-            setNewEvent({...newEvent, category_id: event.target.value})
+          onChange={e => {
+            setNewEvent({...newEvent, category_id: e.target.value})
           }}
         >
           <option disabled value={0}> -- select a category -- </option>
@@ -99,60 +97,58 @@ const NewEvent = props => {
         <input
           placeholder="Event Name"
           value={newEvent.name}
-          onChange={event => setNewEvent({...newEvent, name: event.target.value })}
+          onChange={e => setNewEvent({...newEvent, name: e.target.value })}
         />
         <textarea
           rows={5}
           placeholder="Event Description"
           value={newEvent.description}
-          onChange={event => setNewEvent({...newEvent, description: event.target.value })}
+          onChange={e => setNewEvent({...newEvent, description: e.target.value })}
         />
         <h3 className="capacity-display">Capacity</h3>
         <input
           type="number"
           value={newEvent.limit}
-          onChange={event => setNewEvent({...newEvent, limit: event.target.value })}
+          onChange={e => setNewEvent({...newEvent, limit: e.target.value })}
         />
         <h3>Start Time</h3>
         <input
           type="date"
           value={newEvent.start.split('T')[0]}
-          onChange={event => setNewEvent({...newEvent, start: `${event.target.value}T${newEvent.start.split('T')[1]}:00Z` })}
+          onChange={e => setNewEvent({...newEvent, start: `${e.target.value}T${newEvent.start.split('T')[1]}:00Z` })}
         />
         <input
           type="time"
           value={newEvent.start.split('T')[1].slice(0, 5)}
-          onChange={event => setNewEvent({...newEvent, start: `${newEvent.start.split('T')[0]}T${event.target.value}:00Z` })}
+          onChange={e => setNewEvent({...newEvent, start: `${newEvent.start.split('T')[0]}T${e.target.value}:00Z` })}
         />
         <h3>End Time</h3>
         <input
           type="date"
           value={newEvent.end.split('T')[0]}
-          onChange={event => setNewEvent({...newEvent, end: `${event.target.value}T${newEvent.end.split('T')[1]}:00Z` })}
+          onChange={e => setNewEvent({...newEvent, end: `${e.target.value}T${newEvent.end.split('T')[1]}:00Z` })}
         />
         <input
           type="time"
           value={newEvent.end.split('T')[1].slice(0, 5)}
-          onChange={event => setNewEvent({...newEvent, end: `${newEvent.end.split('T')[0]}T${event.target.value}:00Z` })}
+          onChange={e => setNewEvent({...newEvent, end: `${newEvent.end.split('T')[0]}T${e.target.value}:00Z` })}
         />
-        {/* <input
+        <input
           type="file"
-          // value={newEvent.end.split('T')[1].slice(0, 5)}
-          onChange={event => {
-            setNewEvent({...newEvent, file: event.target.files[0] });
+          onChange={e => {
+            setNewEvent({...newEvent, image_link: e.target.files[0] });
           }}
-        /> */}
-        <S3Uploader headers={{hey: 'hi'}}/>
+        />
         {/* <h3>Location</h3>
         <input
           placeholder="Latitude"
           value={newEvent.lat}
-          onChange={event => setNewEvent({...newEvent, lat: event.target.value })}
+          onChange={e => setNewEvent({...newEvent, lat: e.target.value })}
         />
         <input
           placeholder="Longitude"
           value={newEvent.long}
-          onChange={event => setNewEvent({...newEvent, long: event.target.value })}
+          onChange={e => setNewEvent({...newEvent, long: e.target.value })}
         /> */}
         <style jsx>{`
           h3 {

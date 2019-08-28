@@ -8,6 +8,7 @@ export default props => {
     <header style={{
       display: 'flex',
       justifyContent: 'space-between',
+      alignItems: 'center',
       borderBottom: '1px solid #ddd',
       padding: '1rem'
     }}>
@@ -19,11 +20,11 @@ export default props => {
       </section>}
       {props.user.error?
         <section>
-          <a onClick={event => {
+          <a onClick={() => {
             Router.push('/login').then(() => window.location.reload());
           }}>Login</a>
           &nbsp;/&nbsp;
-          <a onClick={event => {
+          <a onClick={() => {
             Router.push(`/login?signup=true`).then(() => window.location.reload());
           }}>Signup</a>
         </section> :
@@ -33,7 +34,7 @@ export default props => {
               cookies.set('token', null);
               window.location.reload();
             }}
-          >Logout</a>
+          >Logout</a>&nbsp;&nbsp;&nbsp;
         </section>
       }
       <style jsx>{`

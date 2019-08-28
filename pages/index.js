@@ -22,8 +22,8 @@ const Index = props => {
             fontSize: '2rem',
             padding: '.5rem'
           }}
-          onChange={event => {
-            setFilter(event.target.value)
+          onChange={e => {
+            setFilter(e.target.value)
           }}
         >
           <option value={'none'}>All Events</option>

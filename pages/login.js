@@ -31,8 +31,8 @@ const Login = () => {
         <h1>Welcome</h1>
         <form
           className="form-display"
-          onSubmit={event => {
-            event.preventDefault();
+          onSubmit={e => {
+            e.preventDefault();
             serverCall('POST', login? 'login' : 'signup', user)
             .then(res => {
               if (res.auth_token) {
@@ -57,16 +57,16 @@ const Login = () => {
           }}
         >
           {login? '' : <div>
-            <input type="text" onChange={event => setUser({...user, first_name: event.target.value})} value={user.first_name} placeholder="first name" />
-            <input type="text" onChange={event => setUser({...user, last_name: event.target.value})} value={user.last_name} placeholder="last name" />
+            <input type="text" onChange={e => setUser({...user, first_name: e.target.value})} value={user.first_name} placeholder="first name" />
+            <input type="text" onChange={e => setUser({...user, last_name: e.target.value})} value={user.last_name} placeholder="last name" />
           </div>}
-          <input type="email" onChange={event => setUser({...user, email: event.target.value})} value={user.email} placeholder="email" />
+          <input type="email" onChange={e => setUser({...user, email: e.target.value})} value={user.email} placeholder="email" />
           <div className="relative">
 
             <input
             type={showPass}
             id="password"
-            onChange={event => setUser({...user, password: event.target.value})}
+            onChange={e => setUser({...user, password: e.target.value})}
             value={user.password}
             placeholder="password" />
 
@@ -80,8 +80,8 @@ const Login = () => {
           </button>
       </form>
         <p className="error-display">{error}</p>
-        <a href='' onClick={event => {
-            event.preventDefault();
+        <a href='' onClick={e => {
+            e.preventDefault();
             setLogin(!login);
             setShowPass('password');
             setError('')
