@@ -12,11 +12,6 @@ const Index = props => {
   [events, setEvents] = useState(props.events.sort((a, b) => dateTimeString(a.start)[2] - dateTimeString(b.start)[2]) || []),
   [filter, setFilter] = useState('none');
 
-  // let categories = events.map(event => event.category_name);
-  // categories = categories.filter((item, index) => categories.indexOf(item) === index);
-
-  console.log(props.categories)
-
   return (
     <Layout>
       <Header user={props.user} new={props.user}/>
