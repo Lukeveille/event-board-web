@@ -104,6 +104,13 @@ const Login = () => {
           .error-display {
             color: #d00
           }
+          .glyphicon {
+            cursor: pointer;
+            pointer-events: all;
+          }
+          .relative {
+            position: relative;
+          }
         `}</style>
       </div>}
       <Footer />

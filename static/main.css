@@ -10,9 +10,7 @@ button:hover {
   border-color: #444;
   color: #000;
 }
-.relative {
-  position: relative;
-}
+
 .form-display-feedback {
   position: absolute;
   top: 0;
@@ -24,7 +22,6 @@ button:hover {
   text-align: center;
   pointer-events: none;
 }
-
 .form-display button,
 .form-display textarea,
 .form-display select,
@@ -38,7 +35,6 @@ button:hover {
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-.glyphicon {
-  cursor: pointer;
-  pointer-events: all;
+.error-display {
+  color: #d00
 }

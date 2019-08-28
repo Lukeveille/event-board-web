@@ -15,8 +15,6 @@ const handleUpload = async (file, setLoading) => {
 
   const payload = await serverCall('GET', 's3/direct_post').then(res => res);
 
-  console.log(payload)
-
   const url = payload.url;
   const formData = new FormData();
 
@@ -34,7 +32,6 @@ const handleUpload = async (file, setLoading) => {
   .parseFromString(xml, 'application/xml')
   .getElementsByTagName('Location')[0].textContent;
 
-  setLoading(false);
   return uploadUrl;
 };
 
@@ -47,6 +44,8 @@ const NewEvent = props => {
   start = `${doubleZero(date[3])}-${doubleZero(month)}-${doubleZero(day)}T${doubleZero(hour)}:00`,
   end = `${doubleZero(date[3])}-${doubleZero(month)}-${doubleZero(day+1)}T${doubleZero(hour)}:00`,
   [loading, setLoading] = useState(false),
+  [ellipsis, setEllipsis] = useState(''),
+  [error, setError] = useState(''),
   [newEvent, setNewEvent] = useState({
     name: '',
     description: '',
@@ -54,131 +53,203 @@ const NewEvent = props => {
     limit: 10,
     start,
     end,
-    image_link: 'Select Image',
+    image_link: null,
     lat: '',
     long: '',
   });
 
+  if (loading) {
+    setTimeout(() => {
+      if (ellipsis === '...') {
+        setEllipsis('')
+      } else {
+        setEllipsis(ellipsis + '.')
+      }
+    }, 500)
+  }
+
   return (
     <Layout>
       <Header user={props.user}/>
-      <h1>Create a New Event</h1>
-      <form
-        className="form-display"
-        onSubmit={e => {
-          event.preventDefault();
-          handleUpload(newEvent.image_link, setLoading).then(res => {
-            const sendNewEvent = ({...newEvent, image_link: `http://d2b7dtg3ypekdu.cloudfront.net${res.split('com')[1]}`})
-            serverCall('POST', 'events', sendNewEvent).then(res => {
-              if (res.error) {
-                console.error(error)
-              } else {
-                Router.push(`/${res.id}`)
-              }
-            });
-          });
-        }}
-      >
-        <select
-          style={{
-            maxWidth: '20rem',
-            fontSize: '2rem',
-            padding: '.5rem'
-          }}
-          onChange={e => {
-            setNewEvent({...newEvent, category_id: e.target.value})
-          }}
-        >
-          <option disabled value={0}> -- select a category -- </option>
-          {props.categories.map(cat => {
-            return <option key={cat.id} value={cat.id}>{cat.name}</option>
-          })}
-        </select>
-        <input
-          placeholder="Event Name"
-          value={newEvent.name}
-          onChange={e => setNewEvent({...newEvent, name: e.target.value })}
-        />
-        <textarea
-          rows={5}
-          placeholder="Event Description"
-          value={newEvent.description}
-          onChange={e => setNewEvent({...newEvent, description: e.target.value })}
-        />
-        <h3 className="capacity-display">Capacity</h3>
-        <input
-          type="number"
-          value={newEvent.limit}
-          onChange={e => setNewEvent({...newEvent, limit: e.target.value })}
-        />
-        <h3>Start Time</h3>
-        <input
-          type="date"
-          value={newEvent.start.split('T')[0]}
-          onChange={e => setNewEvent({...newEvent, start: `${e.target.value}T${newEvent.start.split('T')[1]}:00Z` })}
-        />
-        <input
-          type="time"
-          value={newEvent.start.split('T')[1].slice(0, 5)}
-          onChange={e => setNewEvent({...newEvent, start: `${newEvent.start.split('T')[0]}T${e.target.value}:00Z` })}
-        />
-        <h3>End Time</h3>
-        <input
-          type="date"
-          value={newEvent.end.split('T')[0]}
-          onChange={e => setNewEvent({...newEvent, end: `${e.target.value}T${newEvent.end.split('T')[1]}:00Z` })}
-        />
-        <input
-          type="time"
-          value={newEvent.end.split('T')[1].slice(0, 5)}
-          onChange={e => setNewEvent({...newEvent, end: `${newEvent.end.split('T')[0]}T${e.target.value}:00Z` })}
-        />
-        <input
-          type="file"
-          onChange={e => {
-            setNewEvent({...newEvent, image_link: e.target.files[0] });
-          }}
-        />
-        {/* <h3>Location</h3>
-        <input
-          placeholder="Latitude"
-          value={newEvent.lat}
-          onChange={e => setNewEvent({...newEvent, lat: e.target.value })}
-        />
-        <input
-          placeholder="Longitude"
-          value={newEvent.long}
-          onChange={e => setNewEvent({...newEvent, long: e.target.value })}
-        /> */}
+      {loading? 
+      <div className="loading-display">
+      	<div className="container-box">
+      		<div className="box">
+      			<div className="spinner spinner"></div>
+      		</div>
+        </div>
+        <h3 style={{
+          position: 'absolute',
+          left: '44.5vw',
+          margin: '3rem auto'
+        }}>
+          Uploading Image{ellipsis}
+        </h3>
         <style jsx>{`
-          h3 {
-            margin: 0;
+          .container-box {
+            width: 100%;
+            height: 100%;
           }
-          form {
-            max-width: 350px;
-            margin: auto;
+          .container-box .box {
+            margin: 10rem;
+            display: grid;
+            justify-items: center;
+            align-items: center;
           }
-          input {
-            display: block;
-            margin: 1rem auto;
+          .container-box .box .spinner {
+            height: 20rem;
+            width: 20rem;
+            background: rgba(0, 0, 0, .2);
+            border-radius: 50%;
           }
-          input[type = 'number'] {
-            max-width: 75px;
-            margin: 1rem 2rem;
+          
+          .container-box .box .spinner {
+            transform: scale(0);
+            background: rgba(0, 0, 0, .8);
+            opacity: 1;
+            animation: spinner4 800ms linear infinite;
           }
-          .capacity-display,
-          input[type = 'number'] {
-            display: inline;
-          }
-          input[type = 'time'],
-          input[type = 'date'] {
-            display: inline;
-            max-width: 175px;
+          @keyframes spinner4 {
+            to {
+              transform: scale(1.5);
+              opacity: 0;
+            }
           }
         `}</style>
-        <button>Create Event</button>
-      </form>
+      </div>
+      :
+      <main>
+        <h1>Create a New Event</h1>
+        <form
+          className="form-display"
+          onSubmit={e => {
+            event.preventDefault();
+            if (newEvent.name && newEvent.description) {
+              handleUpload(newEvent.image_link, setLoading).then(res => {
+                const sendNewEvent = ({...newEvent, image_link: `http://d2b7dtg3ypekdu.cloudfront.net${res.split('com')[1]}`})
+                // const sendNewEvent = ({...newEvent })
+                serverCall('POST', 'events', sendNewEvent)
+                .then(response => {
+                  if (response.id) {
+                    setLoading(false);
+                    Router.push(`/${response.id}`);
+                  } else {
+                    setError('error, see console');
+                    console.error(response);
+                  }
+                })
+                .catch(error => {
+                  setError('error, see console');
+                  console.error(error);
+                });
+              });
+            } else {
+              setError("fields can't be blank");
+            }
+          }}
+        >
+          <select
+            style={{
+              maxWidth: '20rem',
+              fontSize: '2rem',
+              padding: '.5rem'
+            }}
+            onChange={e => {
+              setNewEvent({...newEvent, category_id: e.target.value})
+            }}
+          >
+            <option disabled value={0}> -- select a category -- </option>
+            {props.categories.map(cat => {
+              return <option key={cat.id} value={cat.id}>{cat.name}</option>
+            })}
+          </select>
+          {<p className="error-display">{error}</p>}
+          <input
+            placeholder="Event Name"
+            value={newEvent.name}
+            onChange={e => setNewEvent({...newEvent, name: e.target.value })}
+          />
+          <textarea
+            rows={5}
+            placeholder="Event Description"
+            value={newEvent.description}
+            onChange={e => setNewEvent({...newEvent, description: e.target.value })}
+          />
+          <h3 className="capacity-display">Capacity</h3>
+          <input
+            type="number"
+            value={newEvent.limit}
+            onChange={e => setNewEvent({...newEvent, limit: e.target.value })}
+          />
+          <h3>Start Time</h3>
+          <input
+            type="date"
+            value={newEvent.start.split('T')[0]}
+            onChange={e => setNewEvent({...newEvent, start: `${e.target.value}T${newEvent.start.split('T')[1]}:00Z` })}
+          />
+          <input
+            type="time"
+            value={newEvent.start.split('T')[1].slice(0, 5)}
+            onChange={e => setNewEvent({...newEvent, start: `${newEvent.start.split('T')[0]}T${e.target.value}:00Z` })}
+          />
+          <h3>End Time</h3>
+          <input
+            type="date"
+            value={newEvent.end.split('T')[0]}
+            onChange={e => setNewEvent({...newEvent, end: `${e.target.value}T${newEvent.end.split('T')[1]}:00Z` })}
+          />
+          <input
+            type="time"
+            value={newEvent.end.split('T')[1].slice(0, 5)}
+            onChange={e => setNewEvent({...newEvent, end: `${newEvent.end.split('T')[0]}T${e.target.value}:00Z` })}
+          />
+          <input
+            type="file"
+            onChange={e => {
+              setNewEvent({...newEvent, image_link: e.target.files[0] });
+            }}
+          />
+          {/* <h3>Location</h3>
+          <input
+            placeholder="Latitude"
+            value={newEvent.lat}
+            onChange={e => setNewEvent({...newEvent, lat: e.target.value })}
+          />
+          <input
+            placeholder="Longitude"
+            value={newEvent.long}
+            onChange={e => setNewEvent({...newEvent, long: e.target.value })}
+          /> */}
+          <style jsx>{`
+            h3 {
+              margin: 0;
+            }
+            form {
+              max-width: 350px;
+              margin: auto;
+            }
+            input {
+              display: block;
+              margin: 1rem auto;
+            }
+            input[type = 'number'] {
+              max-width: 75px;
+              margin: 1rem 2rem;
+            }
+            .capacity-display,
+            input[type = 'number'] {
+              display: inline;
+            }
+            input[type = 'time'],
+            input[type = 'date'] {
+              display: inline;
+              max-width: 175px;
+            }
+          `}</style>
+          <button>Create Event</button>
+        </form>
       <Footer />
+      </main>}
     </Layout>
   );
 };

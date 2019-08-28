@@ -9,13 +9,13 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const Event = props => {
-  const owner = props.event? props.user.id === props.event.user.id : false,
+  const owner = props.event && props.event.user && props.user? props.user.id === props.event.user.id : false,
   [users, setUsers] = useState(props.event.users_attending),
-  userIds = props.event? props.event.users_attending.map(user => user.id) : null,
+  userIds = props.event && props.event.users_attending? props.event.users_attending.map(user => user.id) : null,
   [attending, setAttending] = useState(userIds? userIds.includes(props.user.id) : userIds),
-  [atLimit, setAtLimit] = useState(props.event? props.event.limit === props.event.users_attending.length : null),
-  upcoming = props.event? dateTimeString(props.event.start)[2] > Date.now() : false,
-  over = props.event? dateTimeString(props.event.end)[2] > Date.now() : false;
+  [atLimit, setAtLimit] = useState(props.event && props.event.users_attending? props.event.limit === props.event.users_attending.length : null),
+  upcoming = props.event && props.event.start? dateTimeString(props.event.start)[2] > Date.now() : false,
+  over = props.event && props.event.end? dateTimeString(props.event.end)[2] > Date.now() : false;
 
   const eventDisplay = props.event.error?
   <h1>404 - Event not found</h1>

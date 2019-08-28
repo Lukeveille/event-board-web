@@ -8,6 +8,15 @@ export default async function(method, location, data) {
   if (method !== 'GET') req.body = JSON.stringify(data);
   req.headers['Content-Type'] = 'application/json';
 
-  const res = await fetch(`${server}${location? location : ''}`, req);
-  if (method !== 'DELETE') return await res.json();
+  try {
+    
+    const res = await fetch(`${server}${location? location : ''}`, req);
+    if (method !== 'DELETE') return await res.json();
+
+  } catch (error) {
+    
+    return error
+
+  }
+
 };
