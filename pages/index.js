@@ -52,9 +52,9 @@ const Index = props => {
           const [dateString, timeString, utc] = dateTimeString(event.start),
           owner = props.user.id === event.user.id,
           attending = event.users_attending.map(user => user.id).includes(props.user.id),
-          upcoming = utc > Date.now();
+          upcoming = utc + 172800000 > Date.now();
           
-          return upcoming && filter === 'none' || filter === event.category_name? (
+          return upcoming && (filter === 'none' || filter === event.category_name)? (
             <Link href="/[event]" as={`${event.id}`} key={event.id}>
               <tr
                 className="event-listing"
@@ -83,16 +83,19 @@ const Index = props => {
           margin: 1rem auto;
         }
         tr {
-          outline: 1px solid #666
+          outline: 1px solid #ddd
+        }
+        tbody tr:hover {
+          outline: 1px solid #444
         }
         td, th {
-          padding: 1rem;
+          padding: 2rem 1rem;
         }
         .event-listing {
           cursor: pointer;
         }
         img {
-          max-width: 5rem;
+          max-width: 10rem;
         }
       `}</style>
     </Layout>

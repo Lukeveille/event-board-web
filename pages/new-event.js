@@ -1,28 +1,62 @@
 import fetch from 'isomorphic-unfetch';
 import auth from '../utils/auth';
-import Link from 'next/link';
+import doubleZero from '../utils/double-zero';
+import serverCall from '../utils/server-call';
 import Router from 'next/router';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useState } from 'react';
 
-// DRY me up
 const NewEvent = props => {
-  const [newEvent, setNewEvent] = useState({
+  const now = new Date(),
+  date = now.toString().split(' '),
+  hour = date[4].toString().slice(0, 2),
+  day = parseInt(date[2]),
+  month = now.getMonth() < 9? `0${now.getMonth()+1}` : now.getMonth()+1,
+  start = `${doubleZero(date[3])}-${doubleZero(month)}-${doubleZero(day)}T${doubleZero(hour)}:00`,
+  end = `${doubleZero(date[3])}-${doubleZero(month)}-${doubleZero(day+1)}T${doubleZero(hour)}:00`,
+  [newEvent, setNewEvent] = useState({
     name: '',
     description: '',
-    limit: 1,
-    start: '2019-08-21T00:00:00Z',
-    end: '2019-08-29T15:30:00Z',
+    category_id: '1',
+    limit: 10,
+    start,
+    end,
     lat: '',
     long: '',
   });
+
   return (
     <Layout>
-      <Header user={props}/>
+      <Header user={props.user}/>
       <h1>Create a New Event</h1>
-      <form className="form-display">
+      <form
+        className="form-display"
+        onSubmit={event => {
+          event.preventDefault();
+          serverCall('POST', 'events', newEvent)
+          .then(res => {
+            console.log(res.id)
+            Router.push(`/${res.id}`);
+          })
+        }}
+      >
+        <select
+          style={{
+            maxWidth: '20rem',
+            fontSize: '2rem',
+            padding: '.5rem'
+          }}
+          onChange={event => {
+            setNewEvent({...newEvent, category_id: event.target.value})
+          }}
+        >
+          <option disabled value={0}> -- select a category -- </option>
+          {props.categories.map(cat => {
+            return <option key={cat.id} value={cat.id}>{cat.name}</option>
+          })}
+        </select>
         <input
           placeholder="Event Name"
           value={newEvent.name}
@@ -110,11 +144,13 @@ NewEvent.getInitialProps = async function (ctx) {
   const [headers, server] = auth(ctx);
   try {
     const userRes = await fetch(server + 'users', headers),
-    data = await userRes.json();
-    if (data.error) {
+    catRes = await fetch(server + 'categories', headers),
+    user = await userRes.json(),
+    categories = await catRes.json();
+    if (user.error) {
       Router.push('/');
     } else {
-      return data;
+      return {user, categories};
     }
   } catch (err) {
     console.error(err)

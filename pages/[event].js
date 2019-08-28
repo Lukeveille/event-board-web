@@ -13,7 +13,7 @@ const Event = props => {
   [users, setUsers] = useState(props.event.users_attending),
   userIds = props.event.users_attending.map(user => user.id),
   [attending, setAttending] = useState(userIds.includes(props.user.id)),
-  atLimit = props.event.limit === props.event.users_attending.length,
+  [atLimit, setAtLimit] = useState(props.event.limit === props.event.users_attending.length),
   upcoming = dateTimeString(props.event.start)[2] > Date.now(),
   over = dateTimeString(props.event.end)[2] > Date.now();
 
@@ -51,8 +51,8 @@ const Event = props => {
                 }}
               >
                 {
-                  atLimit? 'Event is at capacity' :
                   owner? 'This is your event' :
+                  atLimit? 'Event is at capacity' :
                   attending? 'You are attending' :
                   upcoming? 'I would like to attend' :
                   over? 'This event has started' : 'This event has ended'
@@ -62,17 +62,20 @@ const Event = props => {
                 onClick={() => {
                   serverCall('DELETE', 'attendings', { event_id: props.event.id }).then(res => {
                     setAttending(false);
+                    setAtLimit(false)
                     setUsers(users.filter(user => (user.id !== props.user.id)));
                   });
                 }}
               >I can no longer attend</a> : ''}
             </div>
             }
-            <p style={{margin: 0}}>({props.event.limit - users.length} Spots Left)</p>
-            <p>Capacity {props.event.limit}</p>
+            {upcoming? <div>
+              <p style={{margin: 0}}>({props.event.limit - users.length} Spots Left)</p>
+              <p>Capacity {props.event.limit}</p>
+            </div> : ''}
           </article>
           <article>
-            <h2>{users.length} Attending</h2>
+            <h2>{users.length} Attend{over? 'ing' : 'ed'}</h2>
             <ul>
               {users.map(user => {
                 return <li key={user.id}>{user.full_name}</li>
