@@ -9,15 +9,18 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const Event = props => {
-  const owner = props.event? false : props.user.id === props.event.user.id,
+  const owner = props.event? props.user.id === props.event.user.id : false,
   [users, setUsers] = useState(props.event.users_attending),
-  userIds = props.event? null : props.event.users_attending.map(user => user.id),
+  userIds = props.event? props.event.users_attending.map(user => user.id) : null,
   [attending, setAttending] = useState(userIds? userIds.includes(props.user.id) : userIds),
-  [atLimit, setAtLimit] = useState(props.event? null : props.event.limit === props.event.users_attending.length),
-  upcoming = props.event? '' : dateTimeString(props.event.start)[2] > Date.now(),
-  over = props.event? '' : dateTimeString(props.event.end)[2] > Date.now(),
+  [atLimit, setAtLimit] = useState(props.event? props.event.limit === props.event.users_attending.length : null),
+  upcoming = props.event? dateTimeString(props.event.start)[2] > Date.now() : false,
+  over = props.event? dateTimeString(props.event.end)[2] > Date.now() : false;
 
-  eventDisplay = props.event.error? <h1>404 - Event not found</h1> : <div className="event-display">
+  const eventDisplay = props.event.error?
+  <h1>404 - Event not found</h1>
+  :
+  <div className="event-display">
     <div className="event-header">
       <h3>- {props.event.category_name} -</h3>
       <h1>{props.event.name}</h1>
@@ -49,8 +52,8 @@ const Event = props => {
           >
             {
               owner? 'This is your event' :
-              atLimit? 'Event is at capacity' :
               attending? 'You are attending' :
+              atLimit? 'Event is at capacity' :
               upcoming? 'I would like to attend' :
               over? 'This event has started' : 'This event has ended'
             }
@@ -80,16 +83,12 @@ const Event = props => {
         </ul>
       </article>
     </aside>
-  </div>
-  return (
-    <Layout>
-      <Header user={props.user} new={props.user}/>
-      {eventDisplay}
-      <style jsx>{`
+    <style jsx>{`
         a {
           cursor: pointer;
         }
-        p, h2 {
+        aside p,
+        aside h2 {
           margin-top 0rem;
         }
         h3 {
@@ -124,7 +123,13 @@ const Event = props => {
         .event-header {
           grid-column: span 2;
         }
-      `}</style>
+      `}
+    </style>
+  </div>
+  return (
+    <Layout>
+      <Header user={props.user} new={props.user}/>
+      {eventDisplay}
       <Footer />
     </Layout>
   );

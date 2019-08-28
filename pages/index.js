@@ -52,7 +52,7 @@ const Index = props => {
           const [dateString, timeString, utc] = dateTimeString(event.start),
           owner = props.user.id === event.user.id,
           attending = event.users_attending.map(user => user.id).includes(props.user.id),
-          upcoming = utc + 172800000 > Date.now();
+          upcoming = utc + 86400000 > Date.now();
           
           return upcoming && (filter === 'none' || filter === event.category_name)? (
             <Link href="/[event]" as={`${event.id}`} key={event.id}>
