@@ -35,9 +35,14 @@ const Login = () => {
             event.preventDefault();
             serverCall('POST', login? 'login' : 'signup', user)
             .then(res => {
+              console.log(res)
               if (res.auth_token) {
                 cookies.set('token', res.auth_token);
                 Router.push('/');
+              } else if (res.error || res.first_name) {
+                setError(
+                  user.email === '' || user.password === ''? 'fields cannot be blank' : res.error.user_authentication
+                );
               } else if (!login) {
                 serverCall('POST', 'login', user)
                 .then(res => {
@@ -75,12 +80,14 @@ const Login = () => {
             {login? "Login" : "Sign Up"}
           </button>
         </form>
+        <p className="error-display">{error}</p>
         <a href='' onClick={event => {
             event.preventDefault();
             setLogin(!login);
             setShowPass('password');
             setError('')
-          }}>{login? "Create Account" : "Login"}</a>
+          }}>{login? "Create Account" : "Login"}
+        </a>
         <style jsx>{`
           h1 {
             font-size: 4.5rem;
@@ -94,6 +101,9 @@ const Login = () => {
           img {
             max-width: 8rem;
             margin-top: 5rem;
+          }
+          .error-display {
+            color: #d00
           }
         `}</style>
       </div>}
