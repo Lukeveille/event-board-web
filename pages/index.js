@@ -12,8 +12,10 @@ const Index = props => {
   [events, setEvents] = useState(props.events.sort((a, b) => dateTimeString(a.start)[2] - dateTimeString(b.start)[2]) || []),
   [filter, setFilter] = useState('none');
 
-  let categories = events.map(event => event.category_name);
-  categories = categories.filter((item, index) => categories.indexOf(item) === index);
+  // let categories = events.map(event => event.category_name);
+  // categories = categories.filter((item, index) => categories.indexOf(item) === index);
+
+  console.log(props.categories)
 
   return (
     <Layout>
@@ -30,8 +32,8 @@ const Index = props => {
           }}
         >
           <option value={'none'}>All Events</option>
-          {categories.map(category => {
-            return <option key={category} value={category}>{category}</option>
+          {props.categories.map(category => {
+            return <option key={category.id} value={category.name}>{category.name}</option>
           })}
         </select>
       </div>
@@ -107,10 +109,12 @@ Index.getInitialProps = async function (ctx) {
   try {
     const eventRes = await fetch(`${server}events`, headers),
     userRes = await fetch(server + 'users', headers),
+    catRes = await fetch(server + 'categories', headers),
     events = await eventRes.json(),
+    categories = await catRes.json(),
     user = await userRes.json();
 
-    return {events, user};
+    return {events, user, categories};
   } catch (err) {
     console.error(err)
     if (ctx.res) {

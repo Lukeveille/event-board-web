@@ -35,7 +35,6 @@ const Login = () => {
             event.preventDefault();
             serverCall('POST', login? 'login' : 'signup', user)
             .then(res => {
-              console.log(res)
               if (res.auth_token) {
                 cookies.set('token', res.auth_token);
                 Router.push('/');
@@ -57,12 +56,12 @@ const Login = () => {
             });
           }}
         >
-        {login? '' : <div>
-          <input type="text" onChange={event => setUser({...user, first_name: event.target.value})} value={user.first_name} placeholder="first name" />
-          <input type="text" onChange={event => setUser({...user, last_name: event.target.value})} value={user.last_name} placeholder="last name" />
-        </div>}
-        <input type="email" onChange={event => setUser({...user, email: event.target.value})} value={user.email} placeholder="email" />
-        <div className="relative">
+          {login? '' : <div>
+            <input type="text" onChange={event => setUser({...user, first_name: event.target.value})} value={user.first_name} placeholder="first name" />
+            <input type="text" onChange={event => setUser({...user, last_name: event.target.value})} value={user.last_name} placeholder="last name" />
+          </div>}
+          <input type="email" onChange={event => setUser({...user, email: event.target.value})} value={user.email} placeholder="email" />
+          <div className="relative">
 
             <input
             type={showPass}
@@ -79,7 +78,7 @@ const Login = () => {
           <button type="submit">
             {login? "Login" : "Sign Up"}
           </button>
-        </form>
+      </form>
         <p className="error-display">{error}</p>
         <a href='' onClick={event => {
             event.preventDefault();
@@ -135,4 +134,4 @@ Login.getInitialProps = async function (ctx) {
   };
 };
 
-export default Login
+export default Login;
