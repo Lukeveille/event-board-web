@@ -127,7 +127,6 @@ const NewEvent = props => {
             if (newEvent.name && newEvent.description) {
               handleUpload(newEvent.image_link, setLoading).then(res => {
                 const sendNewEvent = ({...newEvent, image_link: `http://d2b7dtg3ypekdu.cloudfront.net${res.split('com')[1]}`})
-                // const sendNewEvent = ({...newEvent })
                 serverCall('POST', 'events', sendNewEvent)
                 .then(response => {
                   if (response.id) {
