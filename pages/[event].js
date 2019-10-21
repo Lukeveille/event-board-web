@@ -7,10 +7,14 @@ import { useState } from 'react';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Modal from '../components/Modal';
 
 const Event = props => {
   const owner = props.event && props.event.user && props.user? props.user.id === props.event.user.id : false,
   [users, setUsers] = useState(props.event.users_attending),
+  [editing, setEditing] = useState(false),
+  [cancelModal, setCancelModal] = useState('none'),
+  [modal, setModal] = useState('none'),
   userIds = props.event && props.event.users_attending? props.event.users_attending.map(user => user.id) : null,
   [attending, setAttending] = useState(userIds? userIds.includes(props.user.id) : userIds),
   [atLimit, setAtLimit] = useState(props.event && props.event.users_attending? props.event.limit === props.event.users_attending.length : null),
@@ -21,7 +25,7 @@ const Event = props => {
   <h1>404 - Event not found</h1>
   :
   <div className="event-display">
-    <div className="event-header">
+    <div className="two-col">
       <h3>- {props.event.category_name} -</h3>
       <h1>{props.event.name}</h1>
     </div>
@@ -42,6 +46,7 @@ const Event = props => {
         {props.user.error? '' :
         <div className="form-display">
           <button
+            className="attend-btn"
             disabled={owner || attending || atLimit || !upcoming? true : false}
             onClick={() => {
               serverCall('POST', 'attendings', { event_id: props.event.id }).then(() => {
@@ -83,6 +88,43 @@ const Event = props => {
         </ul>
       </article>
     </aside>
+    {owner? <div className="two-col edit-btn">
+      {editing?
+        <div>
+          <a
+            onClick={() => setEditing(false)}
+          >
+            Save
+          </a> - <a
+            onClick={() => setEditing(false)}
+          >
+            Discard
+          </a>
+          <div className="cancel">
+            <a
+              onClick={() => setCancelModal('block')}
+            >
+              <h3>Cancel Event</h3>
+            </a>
+          </div>
+        </div>
+      :
+        <a onClick={() => setEditing(true)}>Edit</a>
+      }
+    </div> : ''}
+    <Modal
+      show={cancelModal}
+      setShow={setCancelModal}
+      closer={true}
+      children={
+        <div className="form-display">
+          <h1>CANCEL EVENT</h1>
+          <h2>Are You Sure?</h2>
+          <button onClick={() => setCancelModal('none')}>No</button>
+          <button>Yes</button>
+        </div>
+      }
+    />
     <style jsx>{`
         a {
           cursor: pointer;
@@ -105,10 +147,10 @@ const Event = props => {
           max-width: 12rem;
         }
         ${owner || attending || atLimit || !upcoming? `
-        button {
+        .attend-btn {
           color: #ddd;
         }
-        button:hover {
+        .attend-btn:hover {
           background-color: #fff;
           color: #ddd;
         }` : ''}
@@ -120,8 +162,14 @@ const Event = props => {
           grid-template-columns: 3fr 1fr;
           grid-template-rowss: 1fr 1fr;
         }
-        .event-header {
+        .two-col {
           grid-column: span 2;
+        }
+        .edit-btn {
+          margin-top: 3rem;
+        }
+        .cancel {
+          padding: 2em;
         }
       `}
     </style>

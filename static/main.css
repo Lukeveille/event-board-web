@@ -38,3 +38,52 @@ button:hover {
 .error-display {
   color: #d00
 }
+
+/* Modals */
+.modal-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+.modal-box {
+  background-color: #fff;
+  border: 1px solid #666;
+  display: inline-block;
+  margin-top: 20vh;
+  border-radius: 15px;
+}
+.modal-content {
+  margin: 2.5em;
+}
+.modal-box h3,
+.modal-box h4 {
+  margin: .2em;
+}
+.modal-top-row {
+  display: relative;
+  text-align: right;
+  padding: .33em 2.4em;
+}
+.x-close-button {
+  border-radius: 100%;
+  padding: .3em .60em .15em .65em;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  display: inline-block;
+  position: absolute;
+  cursor: pointer;
+  color: #ddd;
+  font-weight: 800;
+  transition: all 0.2s;
+}
+.x-close-button:hover {
+  background-color: #ddd;
+  color: #444;
+  border-color: #444;
+}
