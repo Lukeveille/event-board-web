@@ -8,18 +8,24 @@ import Layout from '../components/Layout';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Modal from '../components/Modal';
+import EditField from '../components/EditField';
 
 const Event = props => {
   const owner = props.event && props.event.user && props.user? props.user.id === props.event.user.id : false,
   [users, setUsers] = useState(props.event.users_attending),
   [editing, setEditing] = useState(false),
-  [cancelModal, setCancelModal] = useState('none'),
-  [modal, setModal] = useState('none'),
   userIds = props.event && props.event.users_attending? props.event.users_attending.map(user => user.id) : null,
   [attending, setAttending] = useState(userIds? userIds.includes(props.user.id) : userIds),
   [atLimit, setAtLimit] = useState(props.event && props.event.users_attending? props.event.limit === props.event.users_attending.length : null),
+  [cancelModal, setCancelModal] = useState('none'),
   upcoming = props.event && props.event.start? dateTimeString(props.event.start)[2] > Date.now() : false,
-  over = props.event && props.event.end? dateTimeString(props.event.end)[2] > Date.now() : false;
+  over = props.event && props.event.end? dateTimeString(props.event.end)[2] > Date.now() : false,
+  cancelPrompt = <div className="form-display">
+    <h1>CANCEL EVENT</h1>
+    <h2>Are You Sure?</h2>
+    <button>Yes</button>
+    <button onClick={() => setCancelModal('none')}>No</button>
+  </div>
 
   const eventDisplay = props.event.error?
   <h1>404 - Event not found</h1>
@@ -27,13 +33,29 @@ const Event = props => {
   <div className="event-display">
     <div className="two-col">
       <h3>- {props.event.category_name} -</h3>
-      <h1>{props.event.name}</h1>
+      <EditField
+        children={<h1>{props.event.name}</h1>}
+        editing={editing}
+        size={4}
+      />
     </div>
     <main>
       {props.event.image_link? <img src={props.event.image_link} /> : ''}
-      {over? <h3>{upcoming? 'Starts' : 'This event started at '} {dateTimeString(props.event.start)[1]} {dateTimeString(props.event.start)[0]}</h3> : ''}
-      <p>{props.event.description}</p>
-      <h3>{over? 'Ends ' + dateTimeString(props.event.end)[1] : 'This event ended '} {dateTimeString(props.event.end)[0]}</h3>
+      <EditField
+        children={over? <h3>{upcoming? 'Starts' : 'This event started at '} {dateTimeString(props.event.start)[1]} {dateTimeString(props.event.start)[0]}</h3> : ''}
+        editing={editing}
+        size={0.5}
+      />
+      <EditField
+        children={<p>{props.event.description}</p>}
+        editing={editing}
+        size={2}
+      />
+      <EditField
+        children={over? <h3>{over? 'Ends ' + dateTimeString(props.event.end)[1] : 'This event ended '} {dateTimeString(props.event.end)[0]}</h3> : ''}
+        editing={editing}
+        size={0.5}
+      />
     </main>
     <aside>
       <article>
@@ -76,7 +98,11 @@ const Event = props => {
         }
         {upcoming? <div>
           <p style={{margin: 0}}>({props.event.limit - users.length} Spots Left)</p>
-          <p>Capacity {props.event.limit}</p>
+          <EditField
+            children={<p>Capacity {props.event.limit}</p>}
+            editing={editing}
+            size={0.5}
+          />
         </div> : ''}
       </article>
       <article>
@@ -116,14 +142,7 @@ const Event = props => {
       show={cancelModal}
       setShow={setCancelModal}
       closer={true}
-      children={
-        <div className="form-display">
-          <h1>CANCEL EVENT</h1>
-          <h2>Are You Sure?</h2>
-          <button onClick={() => setCancelModal('none')}>No</button>
-          <button>Yes</button>
-        </div>
-      }
+      children={cancelPrompt}
     />
     <style jsx>{`
         a {
