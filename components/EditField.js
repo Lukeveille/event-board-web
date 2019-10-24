@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 export default props => {
   const [hover, setHover] = useState(false),
+  [modify, setModify] = useState(false),
   editView = {
     position: 'relative',
     display: 'inline-block',
@@ -16,10 +17,17 @@ export default props => {
 
   return (
     <div>
+      {modify?
+      <input value={props.value} /> :
       <div 
         style={editView}
         onMouseOver={() => setHover(true)}
         onMouseOut={() => setHover(false)}
+        onClick={() => {
+          if (props.editing) {
+            setModify(true)
+          }
+        }}
       >
         {props.children}
         {props.editing?
@@ -27,7 +35,7 @@ export default props => {
           className={"glyphicon glyphicon-pencil"}
           style={pencil}
         ></i> : ''}
-      </div>
+      </div>}
     </div>
   )
 }

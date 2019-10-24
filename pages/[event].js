@@ -100,6 +100,7 @@ const Event = props => {
           <p style={{margin: 0}}>({props.event.limit - users.length} Spots Left)</p>
           <EditField
             children={<p>Capacity {props.event.limit}</p>}
+            value={props.event.limit}
             editing={editing}
             size={0.5}
           />
