@@ -10,15 +10,16 @@ export default props => {
   },
   pencil = {
     position: 'absolute',
-    right: '-2vw',
+    right: '-1.5vw',
     top: props.size + 'vh',
-    color: hover? '#000' : '#ddd'
+    color: hover? '#000' : '#ddd',
+    fontSize: '16px'
   }
 
   return (
     <div>
       {modify?
-      <input value={props.value} /> :
+      <input value={props.children} /> :
       <div 
         style={editView}
         onMouseOver={() => setHover(true)}

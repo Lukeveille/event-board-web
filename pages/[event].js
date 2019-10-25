@@ -33,19 +33,23 @@ const Event = props => {
   <div className="event-display">
     <div className="two-col">
       <h3>- {props.event.category_name} -</h3>
-      <EditField
-        children={<h1>{props.event.name}</h1>}
-        editing={editing}
-        size={4}
-      />
+      <h1>
+        <EditField
+          children={props.event.name}
+          editing={editing}
+          size={1.8}
+        />
+      </h1>
     </div>
     <main>
       {props.event.image_link? <img src={props.event.image_link} /> : ''}
-      <EditField
-        children={over? <h3>{upcoming? 'Starts' : 'This event started at '} {dateTimeString(props.event.start)[1]} {dateTimeString(props.event.start)[0]}</h3> : ''}
-        editing={editing}
-        size={0.5}
-      />
+      {over? <h3>{upcoming? 'Starts' : 'This event started at '}
+        <EditField
+          children= {dateTimeString(props.event.start)[1] + ' ' + dateTimeString(props.event.start)[0]}
+          editing={editing}
+          size={0.5}
+        />
+      </h3> : ''}
       <EditField
         children={<p>{props.event.description}</p>}
         editing={editing}
