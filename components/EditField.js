@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import dateTimeString from '../utils/date-time-string';
 
 export default props => {
   const [hover, setHover] = useState(false),
@@ -10,33 +11,42 @@ export default props => {
   },
   pencil = {
     position: 'absolute',
-    right: '-1.5vw',
+    right: '-2vw',
     top: props.size + 'vh',
-    color: hover? '#000' : '#ddd',
+    color: modify? '#000': hover? '#000' : '#ddd',
     fontSize: '16px'
   }
 
   return (
-    <div>
+    <div 
+      style={editView}
+      onMouseOver={() => setHover(true)}
+      onMouseOut={() => setHover(false)}
+      onClick={e => {
+        if (!modify && props.editing) {
+          setModify(true)
+        }
+      }}
+    >
       {modify?
-      <input value={props.children} /> :
-      <div 
-        style={editView}
-        onMouseOver={() => setHover(true)}
-        onMouseOut={() => setHover(false)}
+      <input
+        value={props.value}
+        size={props.value.length}
+      /> :
+      <div>
+        {props.value}
+      </div>}
+      {props.editing?
+      <i
+        className={"glyphicon glyphicon-pencil"}
+        style={pencil}
         onClick={() => {
-          if (props.editing) {
-            setModify(true)
+          if (modify) {
+            console.log(modify)
+            setModify(false);
           }
         }}
-      >
-        {props.children}
-        {props.editing?
-        <i
-          className={"glyphicon glyphicon-pencil"}
-          style={pencil}
-        ></i> : ''}
-      </div>}
+      ></i> : ''}
     </div>
   )
 }

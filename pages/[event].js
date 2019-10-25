@@ -35,7 +35,7 @@ const Event = props => {
       <h3>- {props.event.category_name} -</h3>
       <h1>
         <EditField
-          children={props.event.name}
+          value={props.event.name}
           editing={editing}
           size={1.8}
         />
@@ -43,23 +43,29 @@ const Event = props => {
     </div>
     <main>
       {props.event.image_link? <img src={props.event.image_link} /> : ''}
-      {over? <h3>{upcoming? 'Starts' : 'This event started at '}
+      {over? <h3>{upcoming? 'Starts ' : 'This event started at '}
         <EditField
-          children= {dateTimeString(props.event.start)[1] + ' ' + dateTimeString(props.event.start)[0]}
+          value= {props.event.start}
+          // value= {dateTimeString(props.event.start)[1] + ' ' + dateTimeString(props.event.start)[0]}
           editing={editing}
           size={0.5}
         />
       </h3> : ''}
-      <EditField
-        children={<p>{props.event.description}</p>}
-        editing={editing}
-        size={2}
-      />
-      <EditField
-        children={over? <h3>{over? 'Ends ' + dateTimeString(props.event.end)[1] : 'This event ended '} {dateTimeString(props.event.end)[0]}</h3> : ''}
-        editing={editing}
-        size={0.5}
-      />
+      <p>
+        <EditField
+          value={props.event.description}
+          editing={editing}
+          size={0.5}
+        />
+      </p>
+      {/* {over? <h3>{over? 'Ends ' + dateTimeString(props.event.end)[1] : 'This event ended '} {dateTimeString(props.event.end)[0]}</h3> : ''} */}
+      <h3>{over? 'Ends ' : 'This event ended '}
+        <EditField
+          value={props.event.end}
+          editing={editing}
+          size={0.5}
+        />
+      </h3>
     </main>
     <aside>
       <article>
@@ -102,12 +108,13 @@ const Event = props => {
         }
         {upcoming? <div>
           <p style={{margin: 0}}>({props.event.limit - users.length} Spots Left)</p>
-          <EditField
-            children={<p>Capacity {props.event.limit}</p>}
-            value={props.event.limit}
-            editing={editing}
-            size={0.5}
-          />
+          <p>Capacity&nbsp;
+            <EditField
+              value={props.event.limit}
+              editing={editing}
+              size={0.5}
+            />
+          </p>
         </div> : ''}
       </article>
       <article>
@@ -135,7 +142,7 @@ const Event = props => {
             <a
               onClick={() => setCancelModal('block')}
             >
-              <h3>Cancel Event</h3>
+              <h3 style={{display: 'inline-block'}}>Cancel Event</h3>
             </a>
           </div>
         </div>
@@ -147,7 +154,7 @@ const Event = props => {
       show={cancelModal}
       setShow={setCancelModal}
       closer={true}
-      children={cancelPrompt}
+      value={cancelPrompt}
     />
     <style jsx>{`
         a {
