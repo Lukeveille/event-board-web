@@ -46,24 +46,25 @@ const Event = props => {
       {over? <h3>{upcoming? 'Starts ' : 'This event started at '}
         <EditField
           value= {props.event.start}
-          // value= {dateTimeString(props.event.start)[1] + ' ' + dateTimeString(props.event.start)[0]}
           editing={editing}
           size={0.5}
+          type="time"
         />
       </h3> : ''}
-      <p>
+      <div className="p">
         <EditField
           value={props.event.description}
           editing={editing}
           size={0.5}
+          type="textarea"
         />
-      </p>
-      {/* {over? <h3>{over? 'Ends ' + dateTimeString(props.event.end)[1] : 'This event ended '} {dateTimeString(props.event.end)[0]}</h3> : ''} */}
+      </div>
       <h3>{over? 'Ends ' : 'This event ended '}
         <EditField
           value={props.event.end}
           editing={editing}
           size={0.5}
+          type="time"
         />
       </h3>
     </main>
@@ -108,13 +109,15 @@ const Event = props => {
         }
         {upcoming? <div>
           <p style={{margin: 0}}>({props.event.limit - users.length} Spots Left)</p>
-          <p>Capacity&nbsp;
+          <div className="p">
+            Capacity&nbsp;
             <EditField
               value={props.event.limit}
               editing={editing}
               size={0.5}
+              type="number"
             />
-          </p>
+          </div>
         </div> : ''}
       </article>
       <article>
@@ -154,7 +157,7 @@ const Event = props => {
       show={cancelModal}
       setShow={setCancelModal}
       closer={true}
-      value={cancelPrompt}
+      children={cancelPrompt}
     />
     <style jsx>{`
         a {
@@ -176,6 +179,9 @@ const Event = props => {
         }
         button {
           max-width: 12rem;
+        }
+        input[type=number] {
+          width: 18px;
         }
         ${owner || attending || atLimit || !upcoming? `
         .attend-btn {
@@ -202,6 +208,9 @@ const Event = props => {
         .cancel {
           padding: 2em;
         }
+        .p {
+          margin: 1em 0;
+        }
       `}
     </style>
   </div>
@@ -224,7 +233,6 @@ Event.getInitialProps = async function (ctx) {
     eventData = await eventRes.json();
     return { event: eventData, user }
   } catch (err) {
-    console.error(err)
     if (ctx.res) {
       ctx.res.writeHead(302, {
         Location: '/'

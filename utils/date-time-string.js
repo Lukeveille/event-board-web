@@ -3,8 +3,9 @@ export default (datetime) => {
   dateTimeArray = datetime.split('T'),
   dateArray = dateTimeArray[0].split('-'),
   dateString = `${months[dateArray[1]-1]} ${dateArray[2]}, ${dateArray[0]}`,
-  
+  mathDay = 0,
   timeArray = dateTimeArray[1].split(':'),
+  twentyfour = `${timeArray[0]}:${timeArray[1]}`,
   hour = parseInt(timeArray[0]),
   timeString = `${hour < 13? hour == 0? 12 : parseInt(timeArray[0]) : parseInt(timeArray[0] - 12)}:${timeArray[1]}${timeArray[0] < 12? 'a' : 'p'}m`,
 
@@ -17,5 +18,5 @@ export default (datetime) => {
     datetimeArray[4]
   );
 
-  return [dateString, timeString, utc];
+  return [dateString, timeString, utc, twentyfour, dateTimeArray[0]];
 };

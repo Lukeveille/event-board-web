@@ -11,7 +11,7 @@ export default props => {
   },
   pencil = {
     position: 'absolute',
-    right: '-2vw',
+    right: '-1.5em',
     top: props.size + 'vh',
     color: modify? '#000': hover? '#000' : '#ddd',
     fontSize: '16px'
@@ -29,12 +29,35 @@ export default props => {
       }}
     >
       {modify?
+      props.type === 'textarea'?
+      <textarea
+        style={{resize: 'none'}}
+        value={props.value}
+        type="number"
+        cols="70"
+        rows="5"
+      />
+      :
+      props.type === 'time'?
+      <div>
+        <input
+          type="time"
+          value={dateTimeString(props.value)[3]}
+        />
+        <input
+          type="date"
+          value={dateTimeString(props.value)[4]}
+        />
+      </div>
+      :
       <input
         value={props.value}
-        size={props.value.length}
-      /> :
+        size={props.type === "number"? 3 : props.value.length}
+        type={props.type? props.type : 'text'}
+      /> 
+      :
       <div>
-        {props.value}
+        {props.type === 'time'? `${dateTimeString(props.value)[1]} ${dateTimeString(props.value)[0]}` : props.value}
       </div>}
       {props.editing?
       <i
@@ -42,7 +65,6 @@ export default props => {
         style={pencil}
         onClick={() => {
           if (modify) {
-            console.log(modify)
             setModify(false);
           }
         }}
