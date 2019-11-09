@@ -4,6 +4,7 @@ import dateTimeString from '../utils/date-time-string';
 export default props => {
   const [hover, setHover] = useState(false),
   [modify, setModify] = useState(false),
+  [temp, setTemp] = useState(props.currentEvent),
   editView = {
     position: 'relative',
     display: 'inline-block',
@@ -15,6 +16,9 @@ export default props => {
     top: props.size + 'vh',
     color: modify? '#000': hover? '#000' : '#ddd',
     fontSize: '16px'
+  },
+  updateComponent = e => {
+    setTemp({...temp, [props.value]: e.target.value})
   }
 
   return (
@@ -32,32 +36,34 @@ export default props => {
       props.type === 'textarea'?
       <textarea
         style={{resize: 'none'}}
-        value={props.value}
+        value={temp[props.value]}
         type="number"
         cols="70"
         rows="5"
+        onChange={updateComponent}
       />
       :
       props.type === 'time'?
       <div>
         <input
           type="time"
-          value={dateTimeString(props.value)[3]}
+          value={dateTimeString(temp[props.value])[3]}
         />
         <input
           type="date"
-          value={dateTimeString(props.value)[4]}
+          value={dateTimeString(temp[props.value])[4]}
         />
       </div>
       :
       <input
-        value={props.value}
-        size={props.type === "number"? 3 : props.value.length}
+        value={temp[props.value]}
+        size={props.type === "number"? 3 : temp[props.value].length}
         type={props.type? props.type : 'text'}
+        onChange={updateComponent}
       /> 
       :
       <div>
-        {props.type === 'time'? `${dateTimeString(props.value)[1]} ${dateTimeString(props.value)[0]}` : props.value}
+        {props.type === 'time'? `${dateTimeString(temp[props.value])[1]} ${dateTimeString(temp[props.value])[0]}` : temp[props.value]}
       </div>}
       {props.editing?
       <i

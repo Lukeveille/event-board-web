@@ -11,15 +11,16 @@ import Modal from '../components/Modal';
 import EditField from '../components/EditField';
 
 const Event = props => {
-  const owner = props.event && props.event.user && props.user? props.user.id === props.event.user.id : false,
-  [users, setUsers] = useState(props.event.users_attending),
+  const [currentEvent, setCurrentEvent] = useState(props.event),
+  owner = currentEvent && currentEvent.user && props.user? props.user.id === currentEvent.user.id : false,
+  [users, setUsers] = useState(currentEvent.users_attending),
   [editing, setEditing] = useState(false),
-  userIds = props.event && props.event.users_attending? props.event.users_attending.map(user => user.id) : null,
+  userIds = currentEvent && currentEvent.users_attending? currentEvent.users_attending.map(user => user.id) : null,
   [attending, setAttending] = useState(userIds? userIds.includes(props.user.id) : userIds),
-  [atLimit, setAtLimit] = useState(props.event && props.event.users_attending? props.event.limit === props.event.users_attending.length : null),
+  [atLimit, setAtLimit] = useState(currentEvent && currentEvent.users_attending? currentEvent.limit === currentEvent.users_attending.length : null),
   [cancelModal, setCancelModal] = useState('none'),
-  upcoming = props.event && props.event.start? dateTimeString(props.event.start)[2] > Date.now() : false,
-  over = props.event && props.event.end? dateTimeString(props.event.end)[2] > Date.now() : false,
+  upcoming = currentEvent && currentEvent.start? dateTimeString(currentEvent.start)[2] > Date.now() : false,
+  over = currentEvent && currentEvent.end? dateTimeString(currentEvent.end)[2] > Date.now() : false,
   cancelPrompt = <div className="form-display">
     <h1>CANCEL EVENT</h1>
     <h2>Are You Sure?</h2>
@@ -27,41 +28,49 @@ const Event = props => {
     <button onClick={() => setCancelModal('none')}>No</button>
   </div>
 
-  const eventDisplay = props.event.error?
+  const eventDisplay = currentEvent.error?
   <h1>404 - Event not found</h1>
   :
   <div className="event-display">
     <div className="two-col">
-      <h3>- {props.event.category_name} -</h3>
+      <h3>- {currentEvent.category_name} -</h3>
       <h1>
         <EditField
-          value={props.event.name}
+          currentEvent={currentEvent}
+          setCurrentEvent={setCurrentEvent}
           editing={editing}
+          value="name"
           size={1.8}
         />
       </h1>
     </div>
     <main>
-      {props.event.image_link? <img src={props.event.image_link} /> : ''}
+      {currentEvent.image_link? <img src={currentEvent.image_link} /> : ''}
       {over? <h3>{upcoming? 'Starts ' : 'This event started at '}
         <EditField
-          value= {props.event.start}
+          currentEvent={currentEvent}
+          setCurrentEvent={setCurrentEvent}
           editing={editing}
-          size={0.5}
+          value="start"
           type="time"
+          size={0.5}
         />
       </h3> : ''}
       <div className="p">
         <EditField
-          value={props.event.description}
+          currentEvent={currentEvent}
+          setCurrentEvent={setCurrentEvent}
           editing={editing}
-          size={0.5}
+          value="description"
           type="textarea"
+          size={0.5}
         />
       </div>
       <h3>{over? 'Ends ' : 'This event ended '}
         <EditField
-          value={props.event.end}
+          currentEvent={currentEvent}
+          setCurrentEvent={setCurrentEvent}
+          value="end"
           editing={editing}
           size={0.5}
           type="time"
@@ -71,9 +80,9 @@ const Event = props => {
     <aside>
       <article>
         <h2>Event Host</h2>
-        <h3>{props.event.user.full_name}</h3>
-        <p>member since {dateTimeString(props.event.user.created_at)[0]}</p>
-        {props.user.error? '' : <h3>{props.event.user.email}</h3>}
+        <h3>{currentEvent.user.full_name}</h3>
+        <p>member since {dateTimeString(currentEvent.user.created_at)[0]}</p>
+        {props.user.error? '' : <h3>{currentEvent.user.email}</h3>}
       </article>
       <article style={{padding: 0}}>
         {props.user.error? '' :
@@ -82,7 +91,7 @@ const Event = props => {
             className="attend-btn"
             disabled={owner || attending || atLimit || !upcoming? true : false}
             onClick={() => {
-              serverCall('POST', 'attendings', { event_id: props.event.id }).then(() => {
+              serverCall('POST', 'attendings', { event_id: currentEvent.id }).then(() => {
                 setUsers([...users, props.user]);
                 setAttending(true);
               });
@@ -98,7 +107,7 @@ const Event = props => {
           </button>
           {owner? '' : attending? <a
             onClick={() => {
-              serverCall('DELETE', 'attendings', { event_id: props.event.id }).then(res => {
+              serverCall('DELETE', 'attendings', { event_id: currentEvent.id }).then(res => {
                 setAttending(false);
                 setAtLimit(false)
                 setUsers(users.filter(user => (user.id !== props.user.id)));
@@ -108,14 +117,16 @@ const Event = props => {
         </div>
         }
         {upcoming? <div>
-          <p style={{margin: 0}}>({props.event.limit - users.length} Spots Left)</p>
+          <p style={{margin: 0}}>({currentEvent.limit - users.length} Spots Left)</p>
           <div className="p">
             Capacity&nbsp;
             <EditField
-              value={props.event.limit}
+              currentEvent={currentEvent}
+              setCurrentEvent={setCurrentEvent}
               editing={editing}
-              size={0.5}
+              value="limit"
               type="number"
+              size={0.5}
             />
           </div>
         </div> : ''}
@@ -137,7 +148,7 @@ const Event = props => {
           >
             Save
           </a> - <a
-            onClick={() => setEditing(false)}
+            onClick={() => {setEditing(false)}}
           >
             Discard
           </a>

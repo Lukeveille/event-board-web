@@ -3,7 +3,6 @@ export default (datetime) => {
   dateTimeArray = datetime.split('T'),
   dateArray = dateTimeArray[0].split('-'),
   dateString = `${months[dateArray[1]-1]} ${dateArray[2]}, ${dateArray[0]}`,
-  mathDay = 0,
   timeArray = dateTimeArray[1].split(':'),
   twentyfour = `${timeArray[0]}:${timeArray[1]}`,
   hour = parseInt(timeArray[0]),
