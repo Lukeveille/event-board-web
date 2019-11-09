@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import dateTimeString from '../utils/date-time-string';
 
 export default props => {
   const [hover, setHover] = useState(false),
   [modify, setModify] = useState(false),
-  [temp, setTemp] = useState(props.currentEvent),
   editView = {
     position: 'relative',
     display: 'inline-block',
@@ -17,9 +16,13 @@ export default props => {
     color: modify? '#000': hover? '#000' : '#ddd',
     fontSize: '16px'
   },
-  updateComponent = e => {
-    setTemp({...temp, [props.value]: e.target.value})
-  }
+  updateEvent = e => {
+    props.setCurrentEvent({...props.currentEvent, [props.value]: e.target.value })
+  };
+
+  useEffect(() => {
+    setModify(false);
+  }, [props.editing]);
 
   return (
     <div 
@@ -36,34 +39,44 @@ export default props => {
       props.type === 'textarea'?
       <textarea
         style={{resize: 'none'}}
-        value={temp[props.value]}
+        value={props.currentEvent[props.value]}
         type="number"
         cols="70"
         rows="5"
-        onChange={updateComponent}
+        onChange={updateEvent}
       />
       :
       props.type === 'time'?
       <div>
         <input
           type="time"
-          value={dateTimeString(temp[props.value])[3]}
+          value={dateTimeString(props.currentEvent[props.value])[3]}
+          onChange={e => {
+            let timeString = props.currentEvent[props.value].split('T');
+            timeString = `${timeString[0]}T${e.target.value}:00.000Z`;
+            props.setCurrentEvent({...props.currentEvent, [props.value]: timeString });
+          }}
         />
         <input
           type="date"
-          value={dateTimeString(temp[props.value])[4]}
+          value={dateTimeString(props.currentEvent[props.value])[4]}
+          onChange={e => {
+            let dateString = props.currentEvent[props.value].split('T');
+            dateString = `${e.target.value}T${dateString[1]}`;
+            props.setCurrentEvent({...props.currentEvent, [props.value]: dateString });
+          }}
         />
       </div>
       :
       <input
-        value={temp[props.value]}
-        size={props.type === "number"? 3 : temp[props.value].length}
+        value={props.currentEvent[props.value]}
+        size={props.type === "number"? 3 : props.currentEvent[props.value].length}
         type={props.type? props.type : 'text'}
-        onChange={updateComponent}
+        onChange={updateEvent}
       /> 
       :
       <div>
-        {props.type === 'time'? `${dateTimeString(temp[props.value])[1]} ${dateTimeString(temp[props.value])[0]}` : temp[props.value]}
+        {props.type === 'time'? `${dateTimeString(props.currentEvent[props.value])[1]} ${dateTimeString(props.currentEvent[props.value])[0]}` : props.currentEvent[props.value]}
       </div>}
       {props.editing?
       <i

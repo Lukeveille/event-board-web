@@ -19,8 +19,8 @@ const Event = props => {
   [attending, setAttending] = useState(userIds? userIds.includes(props.user.id) : userIds),
   [atLimit, setAtLimit] = useState(currentEvent && currentEvent.users_attending? currentEvent.limit === currentEvent.users_attending.length : null),
   [cancelModal, setCancelModal] = useState('none'),
-  upcoming = currentEvent && currentEvent.start? dateTimeString(currentEvent.start)[2] > Date.now() : false,
-  over = currentEvent && currentEvent.end? dateTimeString(currentEvent.end)[2] > Date.now() : false,
+  upcoming = props.event && props.event.start? dateTimeString(props.event.start)[2] > Date.now() : false,
+  over = props.event && props.event.end? dateTimeString(props.event.end)[2] > Date.now() : false,
   cancelPrompt = <div className="form-display">
     <h1>CANCEL EVENT</h1>
     <h2>Are You Sure?</h2>
@@ -148,13 +148,18 @@ const Event = props => {
           >
             Save
           </a> - <a
-            onClick={() => {setEditing(false)}}
+            onClick={() => {
+              setEditing(false)
+              setCurrentEvent(props.event);
+            }}
           >
             Discard
           </a>
           <div className="cancel">
             <a
-              onClick={() => setCancelModal('block')}
+              onClick={() => {
+                setCancelModal('block');
+              }}
             >
               <h3 style={{display: 'inline-block'}}>Cancel Event</h3>
             </a>
