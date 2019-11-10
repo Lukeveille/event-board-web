@@ -144,12 +144,15 @@ const Event = props => {
       {editing?
         <div>
           <a
-            onClick={() => setEditing(false)}
+            onClick={() => {
+              setEditing(false)
+              serverCall('PUT', `events/${currentEvent.id}`, currentEvent)
+            }}
           >
             Save
           </a> - <a
             onClick={() => {
-              setEditing(false)
+              setEditing(false);
               setCurrentEvent(props.event);
             }}
           >
