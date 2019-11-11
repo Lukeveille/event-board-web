@@ -8,9 +8,11 @@ import dateTimeString from '../utils/date-time-string';
 import { useState } from 'react';
 
 const Index = props => {
-  const displayLimit = 25,
-  [events, setEvents] = useState(props.events.sort((a, b) => dateTimeString(a.start)[2] - dateTimeString(b.start)[2]) || []),
+  const [events, setEvents] = useState(props.events.sort((a, b) => dateTimeString(a.start)[2] - dateTimeString(b.start)[2]) || []),
+  // displayLimit = 25,
   [filter, setFilter] = useState('none');
+
+  console.log(props)
 
   return (
     <Layout>

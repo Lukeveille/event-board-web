@@ -24,7 +24,13 @@ const Event = props => {
   cancelPrompt = <div className="form-display">
     <h1>CANCEL EVENT</h1>
     <h2>Are You Sure?</h2>
-    <button>Yes</button>
+    <button
+      onClick={() => {
+        serverCall('DELETE', `events/${props.event.id}`).then(() => {
+          Router.push('/');
+        });
+      }}
+    >Yes</button>
     <button onClick={() => setCancelModal('none')}>No</button>
   </div>
 
