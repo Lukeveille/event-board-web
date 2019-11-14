@@ -11,10 +11,11 @@ export default props => {
   },
   pencil = {
     position: 'absolute',
-    right: '-1.5em',
-    top: props.size + 'vh',
+    right: props.type === 'image'? `42.5%` : '-1.5em',
+    top: props.type === 'image'? `42.5%` : props.size + 'vh',
     color: modify? '#000': hover? '#000' : '#ddd',
-    fontSize: '16px'
+    fontSize: props.type === 'image'? '72px' : '16px',
+    opacity: props.type === 'image' && !hover? '50%' : '100%'
   },
   updateEvent = e => {
     props.setCurrentEvent({...props.currentEvent, [props.value]: e.target.value })
@@ -76,7 +77,15 @@ export default props => {
       /> 
       :
       <div>
-        {props.type === 'time'? `${dateTimeString(props.currentEvent[props.value])[1]} ${dateTimeString(props.currentEvent[props.value])[0]}` : props.currentEvent[props.value]}
+        {
+          props.type === 'time'?
+          `${dateTimeString(props.currentEvent[props.value])[1]} ${dateTimeString(props.currentEvent[props.value])[0]}`
+          :
+          props.type === 'image'?
+          <img src={props.currentEvent.image_link} alt={props.currentEvent.name} />
+          :
+          props.currentEvent[props.value]
+        }
       </div>}
       {props.editing?
       <i
@@ -88,6 +97,12 @@ export default props => {
           }
         }}
       ></i> : ''}
+      <style jsx>{`
+        img {
+          max-width: 35em;
+        }
+      `}
+      </style>
     </div>
   )
 }

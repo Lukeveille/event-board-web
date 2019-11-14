@@ -32,9 +32,8 @@ const Event = props => {
       }}
     >Yes</button>
     <button onClick={() => setCancelModal('none')}>No</button>
-  </div>
-
-  const eventDisplay = currentEvent.error?
+  </div>,
+  eventDisplay = currentEvent.error?
   <h1>404 - Event not found</h1>
   :
   <div className="event-display">
@@ -51,7 +50,19 @@ const Event = props => {
       </h1>
     </div>
     <main>
-      {currentEvent.image_link? <img src={currentEvent.image_link} /> : ''}
+      {currentEvent.image_link?
+        // <img src={currentEvent.image_link} />
+        <EditField
+          currentEvent={currentEvent}
+          setCurrentEvent={setCurrentEvent}
+          editing={editing}
+          value="start"
+          type="image"
+          size={0.5}
+        />
+        :
+        ''
+      }
       {over? <h3>{upcoming? 'Starts ' : 'This event started at '}
         <EditField
           currentEvent={currentEvent}
@@ -238,7 +249,8 @@ const Event = props => {
         }
       `}
     </style>
-  </div>
+  </div>;
+  
   return (
     <Layout>
       <Header user={props.user} new={props.user}/>

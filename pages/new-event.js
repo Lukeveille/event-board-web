@@ -2,38 +2,12 @@ import fetch from 'isomorphic-unfetch';
 import auth from '../utils/auth';
 import doubleZero from '../utils/double-zero';
 import serverCall from '../utils/server-call';
+import handleUpload from '../utils/handle-upload';
 import Router from 'next/router';
 import Layout from '../components/Layout';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useState } from 'react';
-
-const handleUpload = async (file, setLoading) => {
-  if (!file) return;
-
-  setLoading(true);
-
-  const payload = await serverCall('GET', 's3/direct_post').then(res => res);
-
-  const url = payload.url;
-  const formData = new FormData();
-
-  Object.keys(payload.fields).forEach(key =>
-    formData.append(key, payload.fields[key])
-  );
-  formData.append('file', file);
-
-  const xml = await fetch(url, {
-    method: 'POST',
-    body: formData
-  }).then(res => res.text());
-
-  const uploadUrl = new DOMParser()
-  .parseFromString(xml, 'application/xml')
-  .getElementsByTagName('Location')[0].textContent;
-
-  return uploadUrl;
-};
 
 const NewEvent = props => {
   const now = new Date(),
@@ -208,17 +182,6 @@ const NewEvent = props => {
               setNewEvent({...newEvent, image_link: e.target.files[0] });
             }}
           />
-          {/* <h3>Location</h3>
-          <input
-            placeholder="Latitude"
-            value={newEvent.lat}
-            onChange={e => setNewEvent({...newEvent, lat: e.target.value })}
-          />
-          <input
-            placeholder="Longitude"
-            value={newEvent.long}
-            onChange={e => setNewEvent({...newEvent, long: e.target.value })}
-          /> */}
           <style jsx>{`
             h3 {
               margin: 0;
