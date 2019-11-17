@@ -1,5 +1,6 @@
 import fetch from 'isomorphic-unfetch';
 import auth from '../utils/auth';
+import handleUpload from '../utils/handle-upload';
 import serverCall from '../utils/server-call';
 import dateTimeString from '../utils/date-time-string';
 import Router from 'next/router';
@@ -9,12 +10,16 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Modal from '../components/Modal';
 import EditField from '../components/EditField';
+import LoadingDisplay from '../components/LoadingDisplay';
 
 const Event = props => {
   const [currentEvent, setCurrentEvent] = useState(props.event),
   owner = currentEvent && currentEvent.user && props.user? props.user.id === currentEvent.user.id : false,
   [users, setUsers] = useState(currentEvent.users_attending),
   [editing, setEditing] = useState(false),
+  [ellipsis, setEllipsis] = useState(''),
+  [loading, setLoading] = useState(false),
+  [filepath, setFilepath] = useState(''),
   userIds = currentEvent && currentEvent.users_attending? currentEvent.users_attending.map(user => user.id) : null,
   [attending, setAttending] = useState(userIds? userIds.includes(props.user.id) : userIds),
   [atLimit, setAtLimit] = useState(currentEvent && currentEvent.users_attending? currentEvent.limit === currentEvent.users_attending.length : null),
@@ -36,6 +41,9 @@ const Event = props => {
   eventDisplay = currentEvent.error?
   <h1>404 - Event not found</h1>
   :
+  loading?
+    <LoadingDisplay />
+  :
   <div className="event-display">
     <div className="two-col">
       <h3>- {currentEvent.category_name} -</h3>
@@ -51,18 +59,16 @@ const Event = props => {
     </div>
     <main>
       {currentEvent.image_link?
-        // <img src={currentEvent.image_link} />
-        <EditField
-          currentEvent={currentEvent}
-          setCurrentEvent={setCurrentEvent}
-          editing={editing}
-          value="start"
-          type="image"
-          size={0.5}
-        />
-        :
-        ''
-      }
+      <EditField
+        filepath={filepath}
+        setFilepath={setFilepath}
+        currentEvent={currentEvent}
+        setCurrentEvent={setCurrentEvent}
+        editing={editing}
+        value="start"
+        type="image"
+        size={0.5}
+      /> : ''}
       {over? <h3>{upcoming? 'Starts ' : 'This event started at '}
         <EditField
           currentEvent={currentEvent}
@@ -162,8 +168,12 @@ const Event = props => {
         <div>
           <a
             onClick={() => {
-              setEditing(false)
-              serverCall('PUT', `events/${currentEvent.id}`, currentEvent)
+              setEditing(false);
+              if (filepath) {
+                alert(`uploading ${filepath}`)
+                
+              }
+              serverCall('PUT', `events/${currentEvent.id}`, currentEvent);
             }}
           >
             Save
@@ -171,6 +181,7 @@ const Event = props => {
             onClick={() => {
               setEditing(false);
               setCurrentEvent(props.event);
+              setFilepath('')
             }}
           >
             Discard
@@ -250,6 +261,16 @@ const Event = props => {
       `}
     </style>
   </div>;
+
+  if (loading) {
+    setTimeout(() => {
+      if (ellipsis === '...') {
+        setEllipsis('');
+      } else {
+        setEllipsis(`${ellipsis}.`);
+      };
+    }, 500);
+  };
   
   return (
     <Layout>

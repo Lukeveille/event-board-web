@@ -4,12 +4,11 @@ import dateTimeString from '../utils/date-time-string';
 export default props => {
   const [hover, setHover] = useState(false),
   [modify, setModify] = useState(false),
-  [filepath, setFilepath] = useState(''),
   uploadRef = useRef(<input value='' />),
   editView = {
     position: 'relative',
     display: 'inline-block',
-    cursor: props.editing? 'pointer' : 'text'
+    cursor: props.editing? 'pointer' : props.type === 'image'? 'default' : 'text'
   },
   pencil = {
     position: 'absolute',
@@ -19,7 +18,7 @@ export default props => {
     fontSize: props.type === 'image'? '72px' : '16px',
     opacity: props.type === 'image' && !hover? '50%' : '100%',
     textShadow: props.type === 'image' && hover? '-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff' : 'none',
-    display: filepath? 'none' : 'inline-block',
+    display: props.filepath? 'none' : 'inline-block',
   },
   updateEvent = e => {
     props.setCurrentEvent({...props.currentEvent, [props.value]: e.target.value })
@@ -27,7 +26,6 @@ export default props => {
 
   useEffect(() => {
     setModify(false);
-    setFilepath('');
   }, [props.editing]);
 
 
@@ -91,18 +89,16 @@ export default props => {
           :
           props.type === 'image'?
           <div>
-            {/* <input type="file" value={filepath} ref={uploadRef} id="uploader" onChange={e => setFilename(e.target.value.split('path')[1].slice(1))} /> */}
             <input
               type="file"
-              value={filepath}
+              value={props.filepath}
               ref={uploadRef}
               id="uploader"
-              onChange={e => setFilepath(e.target.value)}
+              onChange={e => props.setFilepath(e.target.value)}
             />
             <img src={props.currentEvent.image_link} alt={props.currentEvent.name} />
-            {/* <div className="filename">{uploadRef.current.value?  : ''}</div> */}
             <div className="filename">
-              <h2>{filepath? filepath.split('path')[1].slice(1) : ''}</h2>
+              <h2>{props.filepath? props.filepath.split('path')[1].slice(1) : ''}</h2>
             </div>
           </div>
           :
@@ -123,14 +119,14 @@ export default props => {
           img {
             max-width: 35em;
             margin-bottom: 1em;
-            display: ${props.editing && filepath? 'none' : 'inline-block'};
+            display: ${props.editing && props.filepath? 'none' : 'inline-block'};
           }
           .filename {
             margin-bottom: 1em;
-            padding: 5em 7em;
+            padding: 5em 7.5em;
             border: 1px solid #000;
             border-radius: 4px;
-            display: ${props.editing && filepath? 'inline-block' : 'none'}
+            display: ${props.editing && props.filepath? 'inline-block' : 'none'}
           }
           #uploader {
             display: none;
