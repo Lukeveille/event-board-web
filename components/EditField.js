@@ -18,7 +18,7 @@ export default props => {
     fontSize: props.type === 'image'? '72px' : '16px',
     opacity: props.type === 'image' && !hover? '50%' : '100%',
     textShadow: props.type === 'image' && hover? '-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff' : 'none',
-    display: props.filepath? 'none' : 'inline-block',
+    display: props.file? 'none' : 'inline-block',
   },
   updateEvent = e => {
     props.setCurrentEvent({...props.currentEvent, [props.value]: e.target.value })
@@ -91,14 +91,15 @@ export default props => {
           <div>
             <input
               type="file"
-              value={props.filepath}
               ref={uploadRef}
               id="uploader"
-              onChange={e => props.setFilepath(e.target.value)}
+              onChange={e => {
+                props.setFile(e.target.files[0]);
+              }}
             />
             <img src={props.currentEvent.image_link} alt={props.currentEvent.name} />
             <div className="filename">
-              <h2>{props.filepath? props.filepath.split('path')[1].slice(1) : ''}</h2>
+              <h2>{props.file? props.file.name : ''}</h2>
             </div>
           </div>
           :
@@ -119,14 +120,14 @@ export default props => {
           img {
             max-width: 35em;
             margin-bottom: 1em;
-            display: ${props.editing && props.filepath? 'none' : 'inline-block'};
+            display: ${props.editing && props.file? 'none' : 'inline-block'};
           }
           .filename {
             margin-bottom: 1em;
             padding: 5em 7.5em;
             border: 1px solid #000;
             border-radius: 4px;
-            display: ${props.editing && props.filepath? 'inline-block' : 'none'}
+            display: ${props.editing && props.file? 'inline-block' : 'none'}
           }
           #uploader {
             display: none;

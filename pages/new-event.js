@@ -19,7 +19,6 @@ const NewEvent = props => {
   start = `${doubleZero(date[3])}-${doubleZero(month)}-${doubleZero(day)}T${doubleZero(hour)}:00`,
   end = `${doubleZero(date[3])}-${doubleZero(month)}-${doubleZero(day+1)}T${doubleZero(hour)}:00`,
   [loading, setLoading] = useState(false),
-  [ellipsis, setEllipsis] = useState(''),
   [error, setError] = useState(''),
   [newEvent, setNewEvent] = useState({
     name: '',
@@ -37,7 +36,7 @@ const NewEvent = props => {
     <Layout>
       <Header user={props.user}/>
       {loading?
-        <LoadingDisplay />
+      <LoadingDisplay />
       :
       <main>
         <h1>Create a New Event</h1>

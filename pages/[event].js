@@ -17,9 +17,8 @@ const Event = props => {
   owner = currentEvent && currentEvent.user && props.user? props.user.id === currentEvent.user.id : false,
   [users, setUsers] = useState(currentEvent.users_attending),
   [editing, setEditing] = useState(false),
-  [ellipsis, setEllipsis] = useState(''),
   [loading, setLoading] = useState(false),
-  [filepath, setFilepath] = useState(''),
+  [file, setFile] = useState(''),
   userIds = currentEvent && currentEvent.users_attending? currentEvent.users_attending.map(user => user.id) : null,
   [attending, setAttending] = useState(userIds? userIds.includes(props.user.id) : userIds),
   [atLimit, setAtLimit] = useState(currentEvent && currentEvent.users_attending? currentEvent.limit === currentEvent.users_attending.length : null),
@@ -42,7 +41,7 @@ const Event = props => {
   <h1>404 - Event not found</h1>
   :
   loading?
-    <LoadingDisplay />
+  <LoadingDisplay />
   :
   <div className="event-display">
     <div className="two-col">
@@ -60,8 +59,8 @@ const Event = props => {
     <main>
       {currentEvent.image_link?
       <EditField
-        filepath={filepath}
-        setFilepath={setFilepath}
+        file={file}
+        setFile={setFile}
         currentEvent={currentEvent}
         setCurrentEvent={setCurrentEvent}
         editing={editing}
@@ -169,11 +168,30 @@ const Event = props => {
           <a
             onClick={() => {
               setEditing(false);
-              if (filepath) {
-                alert(`uploading ${filepath}`)
-                
+              if (file) {
+                handleUpload(file, setLoading).then(res => {
+                  const eventUpdate = ({...currentEvent, image_link: `http://d2b7dtg3ypekdu.cloudfront.net${res.split('com')[1]}` })
+                  alert(currentEvent.image_link.split('1%2F')[1])
+                  serverCall('DELETE', `s3/delete`, { filename: currentEvent.image_link.split('1%2F')[1] }).then(() => {
+                    serverCall('PUT', `events/${currentEvent.id}`, eventUpdate)
+                    .then(response => {
+                      if (response.id) {
+                        setLoading(false);
+                        Router.push(`/${response.id}`);
+                      } else {
+                        setError('error, see console');
+                        console.error(response);
+                      }
+                    })
+                    .catch(error => {
+                      setError('error, see console');
+                      console.error(error);
+                    });
+                  })
+                })
+              } else {
+                serverCall('PUT', `events/${currentEvent.id}`, currentEvent);
               }
-              serverCall('PUT', `events/${currentEvent.id}`, currentEvent);
             }}
           >
             Save
@@ -181,7 +199,7 @@ const Event = props => {
             onClick={() => {
               setEditing(false);
               setCurrentEvent(props.event);
-              setFilepath('')
+              setFile('')
             }}
           >
             Discard
@@ -262,15 +280,7 @@ const Event = props => {
     </style>
   </div>;
 
-  if (loading) {
-    setTimeout(() => {
-      if (ellipsis === '...') {
-        setEllipsis('');
-      } else {
-        setEllipsis(`${ellipsis}.`);
-      };
-    }, 500);
-  };
+  console.log(currentEvent.image_link.split('1%2F')[1])
   
   return (
     <Layout>
