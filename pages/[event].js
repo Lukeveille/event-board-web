@@ -1,5 +1,6 @@
 import fetch from 'isomorphic-unfetch';
 import auth from '../utils/auth';
+import symbols from '../utils/symbols';
 import handleUpload from '../utils/handle-upload';
 import serverCall from '../utils/server-call';
 import dateTimeString from '../utils/date-time-string';
@@ -170,9 +171,8 @@ const Event = props => {
               setEditing(false);
               if (file) {
                 handleUpload(file, setLoading).then(res => {
-                  const eventUpdate = ({...currentEvent, image_link: `http://d2b7dtg3ypekdu.cloudfront.net${res.split('com')[1]}` })
-                  alert(currentEvent.image_link.split('1%2F')[1])
-                  serverCall('DELETE', `s3/delete`, { filename: currentEvent.image_link.split('1%2F')[1] }).then(() => {
+                  const eventUpdate = ({...currentEvent, image_link: `http://d2b7dtg3ypekdu.cloudfront.net${res.split('com')[1]}` });
+                  serverCall('DELETE', `s3/delete`, { filename: symbols(currentEvent.image_link.split('1%2F')[1]) }).then(() => {
                     serverCall('PUT', `events/${currentEvent.id}`, eventUpdate)
                     .then(response => {
                       if (response.id) {
@@ -279,8 +279,6 @@ const Event = props => {
       `}
     </style>
   </div>;
-
-  console.log(currentEvent.image_link.split('1%2F')[1])
   
   return (
     <Layout>
