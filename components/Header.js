@@ -1,9 +1,12 @@
 import Link from 'next/link';
-import { Cookies } from 'react-cookie';
 import Router from 'next/router';
+import { useState } from 'react';
+import { Cookies } from 'react-cookie';
 
 export default props => {
-  const cookies = new Cookies();
+  const [menu, setMenu] = useState(false),
+  cookies = new Cookies();
+
   return (
     <header style={{
       display: 'flex',
@@ -29,12 +32,23 @@ export default props => {
           }}>Signup</a>
         </section> :
         <section>
-          <a
-            onClick={() => {
+          <img
+            className="profile-pic"
+            src={props.user.gravatar_url}
+            alt={props.user.full_name}
+            onClick={() => setMenu(!menu)}
+          />
+          <ul className="menu">
+            <li>Profile</li>
+            <li>Messages</li>
+            <li onClick={() => {
               cookies.set('token', null);
               window.location.reload();
-            }}
-          >Logout</a>&nbsp;&nbsp;&nbsp;
+            }}>Logout</li>
+          </ul>
+          {/* <a
+            
+          >Logout</a>&nbsp;&nbsp;&nbsp; */}
         </section>
       }
       <style jsx>{`
@@ -44,8 +58,32 @@ export default props => {
         a {
           cursor: pointer;
         }
+        .profile-pic {
+          border-radius: 50%;
+          max-height: 3.5rem;
+          cursor: pointer;
+        }
         .new-event {
           margin-left: -15rem;
+        }
+        .menu {
+          display: ${menu? 'inline-block' : 'none' };
+          position: absolute;
+          right: 2em;
+          top: 4rem;
+          list-style-type: none;
+          background: #fff;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          padding: 0;
+        }
+        .menu li {
+          cursor: pointer;
+          padding: 0.5em;
+          border: 1px solid #ddd;
+        }
+        .menu li:hover {
+          border: 1px solid #000;
         }
         .logo {
           cursor: pointer
