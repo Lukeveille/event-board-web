@@ -39,16 +39,13 @@ export default props => {
             onClick={() => setMenu(!menu)}
           />
           <ul className="menu">
-            <li>Profile</li>
+            <Link href="/user-profile"><li>Profile</li></Link>
             <li>Messages</li>
             <li onClick={() => {
               cookies.set('token', null);
               window.location.reload();
             }}>Logout</li>
           </ul>
-          {/* <a
-            
-          >Logout</a>&nbsp;&nbsp;&nbsp; */}
         </section>
       }
       <style jsx>{`
@@ -60,7 +57,7 @@ export default props => {
         }
         .profile-pic {
           border-radius: 50%;
-          max-height: 3.5rem;
+          max-height: 3rem;
           cursor: pointer;
         }
         .new-event {
@@ -70,7 +67,7 @@ export default props => {
           display: ${menu? 'inline-block' : 'none' };
           position: absolute;
           right: 2em;
-          top: 4rem;
+          top: 3rem;
           list-style-type: none;
           background: #fff;
           border: 1px solid #ddd;
