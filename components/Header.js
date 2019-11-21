@@ -55,6 +55,9 @@ export default props => {
         a {
           cursor: pointer;
         }
+        .name {
+          border-top: 0;
+        }
         .profile-pic {
           border-radius: 50%;
           max-height: 3rem;

@@ -8,7 +8,7 @@ import dateTimeString from '../utils/date-time-string';
 import { useState } from 'react';
 
 const Index = props => {
-  const [events, setEvents] = useState(props.events.sort((a, b) => dateTimeString(a.start)[2] - dateTimeString(b.start)[2]) || []),
+  const [events, setEvents] = useState(props.events),
   displayLimit = 25,
   [filter, setFilter] = useState('none');
 
@@ -48,10 +48,9 @@ const Index = props => {
         {events.map(event => {
           const [dateString, timeString, utc] = dateTimeString(event.start),
           owner = props.user.id === event.user.id,
-          attending = event.users_attending.map(user => user.id).includes(props.user.id),
-          upcoming = utc + 86400000 > Date.now();
+          attending = event.users_attending.map(user => user.id).includes(props.user.id);
           
-          return upcoming && (filter === 'none' || filter === event.category_name)? (
+          return (filter === 'none' || filter === event.category_name)? (
             <Link href="/[event]" as={`${event.id}`} key={event.id}>
               <tr
                 className="event-listing"
@@ -102,9 +101,9 @@ const Index = props => {
 Index.getInitialProps = async function (ctx) {
   const [headers, server] = auth(ctx);
   try {
-    const eventRes = await fetch(`${server}events`, headers),
-    userRes = await fetch(server + 'users', headers),
-    catRes = await fetch(server + 'categories', headers),
+    const eventRes = await fetch(`${server}events?length=${displayLimit}&page=0`, headers),
+    userRes = await fetch(`${server}users`, headers),
+    catRes = await fetch(`${server}categories`, headers),
     events = await eventRes.json(),
     categories = await catRes.json(),
     user = await userRes.json();
