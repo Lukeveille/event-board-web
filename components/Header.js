@@ -15,9 +15,9 @@ export default props => {
       borderBottom: '1px solid #ddd',
       padding: '1rem'
     }}>
-      <Link href="/">
-        <img src="../static/logo.png" className="logo" />
-      </Link>
+      <a href="/">
+        <img src="../static/logo.png" className="logo"/>
+      </a>
       {!props.new || props.new.error? '' : <section className="new-event">
         <Link href="/new-event"><a>+ New Event</a></Link>
       </section>}

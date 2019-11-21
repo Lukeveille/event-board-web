@@ -8,13 +8,20 @@ import Header from '../components/Header';
 import dateTimeString from '../utils/date-time-string';
 import { useState } from 'react';
 
-const offset = 10;
+const offset = 8;
 
 const Index = props => {
-  const [events, setEvents] = useState(props.events),
-  [total, setTotal] = useState(events.length > 0? events[0].total_events : 0),
+  const events = props.events,
+  total = events.length > 0? events[0].total_events : 0,
   [filter, setFilter] = useState('none'),
-  query = useRouter().query;
+  query = useRouter().query,
+  count = num => {
+    let array = [];
+    for (let i = 0; i < num; i++) {
+      array.push(i+1);
+    };
+    return array;
+  };
 
   return (
     <Layout>
@@ -50,8 +57,7 @@ const Index = props => {
         </thead>
         <tbody>
         {events.map(event => {
-          console.log(event)
-          const [dateString, timeString, utc] = dateTimeString(event.start),
+          const [dateString, timeString] = dateTimeString(event.start),
           owner = props.user.id === event.user.id,
           attending = event.users_attending.map(user => user.id).includes(props.user.id);
           
@@ -79,10 +85,23 @@ const Index = props => {
         })}
         </tbody>
       </table>
-        {isNaN(query.page) || query.page < 2? '' : <a href={`?page=${query.page - 1}`}>
+        {isNaN(query.page) || query.page < 2? ''
+        :
+        <a href={`?page=${query.page - 1}`} onClick={() => window.location.reload()}>
           &lt;
         </a>}
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;
+          {
+            count(Math.ceil(total / offset)).map(num => {
+              return (
+                <span key={num}>
+                  {parseInt(query.page) === num || (query.page === undefined && num == 1)? num : <a href={`?page=${num}`}>{num}</a>}
+                  &nbsp;
+                </span>
+              )
+            })
+          }
+        &nbsp;
         {query.page * offset > total - 1? '' : <a href={`?page=${isNaN(query.page)? 2 : parseInt(query.page) + 1}`}>
           &gt;
         </a>}
@@ -113,7 +132,6 @@ const Index = props => {
 Index.getInitialProps = async function (ctx) {
   const [headers, server] = auth(ctx);
 
-  
   try {
     const catRes = await fetch(`${server}categories`, headers),
     eventRes = await fetch(`${server}events?length=${offset}&page=${ctx.query.page? ctx.query.page - 1 : 0}`, headers),
