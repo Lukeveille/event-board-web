@@ -2,15 +2,19 @@ import fetch from 'isomorphic-unfetch';
 import auth from '../utils/auth';
 import Link from 'next/link';
 import Router from 'next/router';
+import { useRouter } from 'next/router'
 import Layout from '../components/Layout';
 import Header from '../components/Header';
 import dateTimeString from '../utils/date-time-string';
 import { useState } from 'react';
 
+const offset = 10;
+
 const Index = props => {
   const [events, setEvents] = useState(props.events),
-  displayLimit = 25,
-  [filter, setFilter] = useState('none');
+  [total, setTotal] = useState(events.length > 0? events[0].total_events : 0),
+  [filter, setFilter] = useState('none'),
+  query = useRouter().query;
 
   return (
     <Layout>
@@ -46,6 +50,7 @@ const Index = props => {
         </thead>
         <tbody>
         {events.map(event => {
+          console.log(event)
           const [dateString, timeString, utc] = dateTimeString(event.start),
           owner = props.user.id === event.user.id,
           attending = event.users_attending.map(user => user.id).includes(props.user.id);
@@ -74,6 +79,13 @@ const Index = props => {
         })}
         </tbody>
       </table>
+        {isNaN(query.page) || query.page < 2? '' : <a href={`?page=${query.page - 1}`}>
+          &lt;
+        </a>}
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        {query.page * offset > total - 1? '' : <a href={`?page=${isNaN(query.page)? 2 : parseInt(query.page) + 1}`}>
+          &gt;
+        </a>}
       <style jsx>{`
         table {
           margin: 1rem auto;
@@ -100,15 +112,17 @@ const Index = props => {
 
 Index.getInitialProps = async function (ctx) {
   const [headers, server] = auth(ctx);
-  try {
-    const eventRes = await fetch(`${server}events?length=${displayLimit}&page=0`, headers),
-    userRes = await fetch(`${server}users`, headers),
-    catRes = await fetch(`${server}categories`, headers),
-    events = await eventRes.json(),
-    categories = await catRes.json(),
-    user = await userRes.json();
 
-    return {events, user, categories};
+  
+  try {
+    const catRes = await fetch(`${server}categories`, headers),
+    eventRes = await fetch(`${server}events?length=${offset}&page=${ctx.query.page? ctx.query.page - 1 : 0}`, headers),
+    userRes = await fetch(`${server}users`, headers),
+    categories = await catRes.json(),
+    events = await eventRes.json(),
+    user = await userRes.json();
+    
+    return {categories, events, user};;
   } catch (err) {
     console.error(err)
     if (ctx.res) {
