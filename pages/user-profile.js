@@ -8,7 +8,6 @@ import EventTable from '../components/EventTable';
 import Router from 'next/router';
 
 const UserProfile = props => {
-
   const upcomingEvents = props.events.filter(event => dateTimeString(event.start)[2] > Date.now()),
   yourEvents = upcomingEvents.filter(event => event.user_id === props.user.id),
   attendedEvents = upcomingEvents.filter(event => event.user_id !== props.user.id),

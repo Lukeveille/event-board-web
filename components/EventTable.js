@@ -19,6 +19,7 @@ export default props => {
         <tbody>
         {props.events.map(event => {
           const [dateString, timeString] = dateTimeString(event.start),
+          user = event.users_attending.filter(user => user.id === event.user_id)[0],
           owner = props.user.id === event.user_id,
           attending = event.users_attending.map(user => user.id).includes(props.user.id);
           
@@ -38,7 +39,7 @@ export default props => {
                 </td>
                 {attending? <th>{event.users_attending.length} / {event.limit}</th> :
                 <td>{event.users_attending.length} / {event.limit}</td>}
-                {/* {owner?<th>You</th> : <td>{event.user.full_name}</td>} */}
+                {owner?<th>You</th> : <td>{user.full_name}</td>}
                 <td>{event.category_name}</td>
               </tr>
             </Link>

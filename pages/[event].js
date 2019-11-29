@@ -172,7 +172,7 @@ const Event = props => {
               if (file) {
                 handleUpload(file, setLoading).then(res => {
                   const eventUpdate = ({...currentEvent, image_link: `http://d2b7dtg3ypekdu.cloudfront.net${res.split('com')[1]}` });
-                  serverCall('DELETE', `s3/delete`, { filename: symbols(currentEvent.image_link.split('1%2F')[1]) }).then(() => {
+                  serverCall('DELETE', `s3/delete`, { filename: symbols(currentEvent.image_link.split('%2F')[1]) }).then(() => {
                     serverCall('PUT', `events/${currentEvent.id}`, eventUpdate)
                     .then(response => {
                       if (response.id) {
