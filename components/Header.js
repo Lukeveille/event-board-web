@@ -7,6 +7,10 @@ export default props => {
   const [menu, setMenu] = useState(false),
   cookies = new Cookies();
 
+  if (process.browser) window.onclick = () => {
+    if (menu) setMenu(false);
+  }
+
   return (
     <header style={{
       display: 'flex',
@@ -36,16 +40,20 @@ export default props => {
             className="profile-pic"
             src={props.user.gravatar_url}
             alt={props.user.full_name}
-            onClick={() => setMenu(!menu)}
+            onClick={e => {
+              setMenu(!menu);
+              e.stopPropagation();
+            }
+            }
           />
-          <ul className="menu">
+          {menu? <ul className="menu">
             <Link href="/user-profile"><li>Profile</li></Link>
             <li>Messages</li>
             <li onClick={() => {
               cookies.set('token', null);
               window.location.reload();
             }}>Logout</li>
-          </ul>
+          </ul> : ''}
         </section>
       }
       <style jsx>{`
@@ -67,7 +75,7 @@ export default props => {
           margin-left: -15rem;
         }
         .menu {
-          display: ${menu? 'inline-block' : 'none' };
+          display: 'inline-block'; 
           position: absolute;
           right: 2em;
           top: 3rem;

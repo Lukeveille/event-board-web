@@ -1,7 +1,9 @@
 export default props => {
+  
+  if (process.browser) window.onkeydown = event => {if (event.keyCode === 27) props.setShow('none')}
+
   return (
     <div
-      onKeyDown={event => {if (event.keyCode === 27) props.setShow('none')}}
       style={{display: props.show }}
       className="modal-bg"
       onClick={() => props.closer? props.setShow('none') : ''}
