@@ -4,6 +4,7 @@ import dateTimeString from '../utils/date-time-string';
 export default props => {
   const [hover, setHover] = useState(false),
   [modify, setModify] = useState(false),
+  [temp, setTemp] = useState(undefined),
   uploadRef = useRef(<input value='' />),
   editView = {
     position: 'relative',
@@ -18,10 +19,18 @@ export default props => {
     fontSize: props.type === 'image'? '72px' : '16px',
     opacity: props.type === 'image' && !hover? '50%' : '100%',
     textShadow: props.type === 'image' && hover? '-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff' : 'none',
-    display: props.file? 'none' : 'inline-block',
+    display: props.file? 'none' : 'inline-block'
   },
   updateEvent = e => {
     props.setCurrentEvent({...props.currentEvent, [props.value]: e.target.value })
+  },
+  keyPrompt = e => {
+    if (e.keyCode === 13) {
+      setModify(false);
+    } else if (e.keyCode === 27) {
+      props.setCurrentEvent(temp);
+      setModify(false);
+    }
   };
 
   useEffect(() => {
@@ -38,6 +47,7 @@ export default props => {
       if (props.editing && props.type === 'image') {
         uploadRef.current.click();
       } else if (!modify && props.editing) {
+          setTemp(props.currentEvent);
           setModify(true);
         }
       }}
@@ -51,11 +61,13 @@ export default props => {
           cols="70"
           rows="5"
           onChange={updateEvent}
+          onKeyDown={keyPrompt}
         />
         :
         props.type === 'time'?
         <div>
           <input
+            onKeyDown={keyPrompt}
             type="time"
             value={dateTimeString(props.currentEvent[props.value])[3]}
             onChange={e => {
@@ -65,6 +77,7 @@ export default props => {
             }}
           />
           <input
+            onKeyDown={keyPrompt}
             type="date"
             value={dateTimeString(props.currentEvent[props.value])[4]}
             onChange={e => {
@@ -76,6 +89,7 @@ export default props => {
         </div>
         :
         <input
+          onKeyDown={keyPrompt}
           value={props.currentEvent[props.value]}
           size={props.type === "number"? 3 : props.currentEvent[props.value].length}
           type={props.type? props.type : 'text'}
