@@ -46,7 +46,16 @@ const Event = props => {
   :
   <div className="event-display">
     <div className="two-col">
-      <h3>- {currentEvent.category_name} -</h3>
+      <h3>{
+        <EditField
+          currentEvent={currentEvent}
+          setCurrentEvent={setCurrentEvent}
+          editing={editing}
+          value="category_name"
+          size={0.5}
+          type="select"
+        />
+      }</h3>
       <h1>
         <EditField
           currentEvent={currentEvent}
@@ -163,7 +172,7 @@ const Event = props => {
         </ul>
       </article>
     </aside>
-    {owner? <div className="two-col edit-btn">
+    {owner && upcoming? <div className="two-col edit-btn">
       {editing?
         <div>
           <a

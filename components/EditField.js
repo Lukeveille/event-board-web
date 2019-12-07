@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import dateTimeString from '../utils/date-time-string';
+import serverCall from '../utils/server-call';
 
 export default props => {
   const [hover, setHover] = useState(false),
   [modify, setModify] = useState(false),
+  [categories, setCategories] = useState(undefined),
   [temp, setTemp] = useState(undefined),
   uploadRef = useRef(<input value='' />),
   editView = {
@@ -37,6 +39,13 @@ export default props => {
     setModify(false);
   }, [props.editing]);
 
+  useEffect(() => {
+    if (!categories && props.value === 'category_name') {
+      serverCall('GET', `categories`).then(res => {
+        setCategories(res)
+      })
+    }
+  }, [props.modify]);
 
   return (
     <div 
@@ -88,6 +97,23 @@ export default props => {
           />
         </div>
         :
+        props.type === 'select'?
+        <select
+          value={props.currentEvent[props.value]}
+          onChange={e => {
+            props.setCurrentEvent({
+              ...props.currentEvent,
+              category_name: e.target.value,
+              category_id: categories.filter(cat => cat.name === e.target.value)[0].id
+            });
+          }}
+          onKeyDown={keyPrompt}
+        >
+          {categories.map(cat => {
+            return <option key={cat.name}>{cat.name}</option>
+        })}
+        </select>
+        :
         <input
           onKeyDown={keyPrompt}
           value={props.currentEvent[props.value]}
@@ -115,6 +141,11 @@ export default props => {
             <div className="filename">
               <h2>{props.file? props.file.name : ''}</h2>
             </div>
+          </div>
+          :
+          props.type === 'select'?
+          <div>
+            - {props.currentEvent[props.value]} -
           </div>
           :
           props.currentEvent[props.value]

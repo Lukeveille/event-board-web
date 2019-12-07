@@ -23,7 +23,7 @@ export default props => {
           owner = props.user.id === event.user_id,
           attending = event.users_attending.map(user => user.id).includes(props.user.id);
           
-          return (props.filter === 'none' || props.filter === event.category_name)? (
+          return (
             <Link href="/[event]" as={`${event.id}`} key={event.id}>
               <tr
                 className="event-listing"
@@ -43,7 +43,7 @@ export default props => {
                 <td>{event.category_name}</td>
               </tr>
             </Link>
-          ) : (null)
+          )
         })}
         </tbody>
       </table>
