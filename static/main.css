@@ -26,6 +26,9 @@ button:hover {
 input[type=number] {
   width: 50px;
 }
+a {
+  cursor: pointer;
+}
 
 .form-display-feedback {
   position: absolute;

@@ -67,8 +67,9 @@ export default props => {
           border-top: 0;
         }
         .profile-pic {
-          border-radius: 50%;
+          border-radius: 5px;
           max-height: 3rem;
+          max-width: 3rem;
           cursor: pointer;
         }
         .new-event {

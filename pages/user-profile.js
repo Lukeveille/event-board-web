@@ -20,6 +20,10 @@ const UserProfile = props => {
         <h1 className="user-title">{props.user.full_name}</h1>
         <p className="name">Email</p>
         <h2 className="user-title">{props.user.email}</h2>
+        <div className="profile-pic"></div>
+        <h3 className="name">member Since</h3>
+        <p className="user-title">{dateTimeString(props.user.created_at)[0]}</p>
+        <a href='/'>Edit Profile</a>
         <h2 className="event-listings">Your Events</h2>
         <EventTable events={yourEvents} user={props.user} filter="none"/>
         <h2>Events You Are Attending</h2>
@@ -35,7 +39,15 @@ const UserProfile = props => {
           margin-bottom: 0;
         }
         .event-listings {
-          margin-top: 3em;
+          margin-top: 2em;
+        }
+        .profile-pic {
+          border-radius: 15px;
+          min-width: 15rem;
+          min-height: 15rem;
+          display: inline-block;
+          background: url(${props.user.gravatar_url}) no-repeat center;
+          background-size: cover;
         }
       `}</style>
     </Layout>
@@ -52,7 +64,7 @@ UserProfile.getInitialProps = async function (ctx) {
     if (user.error) {
       Router.push('/');
     } else {
-      const events = yourEvents.filter(attend => attend.event !== null).map(event => event.event)
+      const events = yourEvents.map(event => event.event)
       return { user, events };
     }
     

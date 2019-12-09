@@ -11,6 +11,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import Modal from '../components/Modal';
 import EditField from '../components/EditField';
+import EditControl from '../components/EditControl';
 import LoadingDisplay from '../components/LoadingDisplay';
 
 const Event = props => {
@@ -30,6 +31,7 @@ const Event = props => {
     <h1>CANCEL EVENT</h1>
     <h2>Are You Sure?</h2>
     <button
+      style={{borderColor: '#d00'}}
       onClick={() => {
         serverCall('DELETE', `events/${props.event.id}`).then(() => {
           Router.push('/');
@@ -173,59 +175,19 @@ const Event = props => {
       </article>
     </aside>
     {owner && upcoming? <div className="two-col edit-btn">
-      {editing?
-        <div>
-          <a
-            onClick={() => {
-              setEditing(false);
-              if (file) {
-                handleUpload(file, setLoading).then(res => {
-                  const eventUpdate = ({...currentEvent, image_link: `http://d2b7dtg3ypekdu.cloudfront.net${res.split('com')[1]}` });
-                  serverCall('DELETE', `s3/delete`, { filename: symbols(currentEvent.image_link.split('%2F')[1]) }).then(() => {
-                    serverCall('PUT', `events/${currentEvent.id}`, eventUpdate)
-                    .then(response => {
-                      if (response.id) {
-                        setLoading(false);
-                        Router.push(`/${response.id}`);
-                      } else {
-                        setError('error, see console');
-                        console.error(response);
-                      }
-                    })
-                    .catch(error => {
-                      setError('error, see console');
-                      console.error(error);
-                    });
-                  })
-                })
-              } else {
-                serverCall('PUT', `events/${currentEvent.id}`, currentEvent);
-              }
-            }}
-          >
-            Save
-          </a> - <a
-            onClick={() => {
-              setEditing(false);
-              setCurrentEvent(props.event);
-              setFile('')
-            }}
-          >
-            Discard
-          </a>
-          <div className="cancel">
-            <a
-              onClick={() => {
-                setCancelModal('block');
-              }}
-            >
-              <h3 style={{display: 'inline-block'}}>Cancel Event</h3>
-            </a>
-          </div>
-        </div>
-      :
-        <a onClick={() => setEditing(true)}>Edit</a>
-      }
+      <EditControl
+        setCancelModal={setCancelModal}
+        editing={editing}
+        setEditing={setEditing}
+        setLoading={setLoading}
+        setCurrentEvent={setCurrentEvent}
+        setFile={setFile}
+        file={file}
+        original={props.event}
+        update={currentEvent}
+        path="events"
+        image="image_link"
+      />
     </div> : ''}
     <Modal
       show={cancelModal}
@@ -267,6 +229,13 @@ const Event = props => {
         }` : ''}
         article {
           padding-bottom: 2rem;
+        }
+        .cancel-btn {
+          color: #d00;
+        }
+        .cancel-btn:hover {
+          color: #b00;
+          text-decoration: underline;
         }
         .event-display {
           display: grid;
