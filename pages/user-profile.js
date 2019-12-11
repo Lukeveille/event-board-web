@@ -18,16 +18,12 @@ const UserProfile = props => {
   yourEvents = upcomingEvents.filter(event => event.user_id === props.user.id),
   attendedEvents = upcomingEvents.filter(event => event.user_id !== props.user.id),
   pastEvents = props.events.filter(event => dateTimeString(event.start)[2] < Date.now()),
-  [user, setUser] = useState({...props.user,
-    first_name: props.user.full_name.split(' ')[0],
-    last_name: props.user.full_name.split(' ')[1]
-  }),
+  [user, setUser] = useState(props.user),
   [file, setFile] = useState(''),
   [editing, setEditing] = useState(false),
   [cancelModal, setCancelModal] = useState('none'),
   [loading, setLoading] = useState(false),
   [modalContent, setModalContent] = useState(false),
-  tempPicURL = "../static/blank-user.png",
   cancelPrompt = <div className="form-display">
     <h1>DELETE USER</h1>
     <h2>Are You Sure? This will cancel all events you are hosting!</h2>
@@ -41,8 +37,6 @@ const UserProfile = props => {
     >Yes</button>
     <button onClick={() => setCancelModal('none')}>No</button>
   </div>;
-
-  console.log(user);
 
   return (
     <Layout>
@@ -69,7 +63,15 @@ const UserProfile = props => {
           size={1}
           />
         </h2>
-        <div className="profile-pic"></div>
+        <EditField
+          file={file}
+          setFile={setFile}
+          update={user}
+          setUpdate={setUser}
+          editing={editing}
+          value="profile_pic"
+          type="image"
+        />
         <h3 className="name">member since</h3>
         <p className="user-title">{dateTimeString(props.user.created_at)[0]}</p>
         <EditControl
@@ -129,14 +131,6 @@ const UserProfile = props => {
         .event-listings {
           margin-top: 2em;
         }
-        .profile-pic {
-          border-radius: 15px;
-          min-width: 15rem;
-          min-height: 15rem;
-          display: inline-block;
-          background: url(${props.user.profile_pic? props.user.profile_pic : tempPicURL}) no-repeat center;
-          background-size: cover;
-        }
       `}</style>
     </Layout>
   )
@@ -147,12 +141,17 @@ UserProfile.getInitialProps = async function (ctx) {
   try {
     const userRes = await fetch(`${server}users`, headers),
     yourEventsRes = await fetch(`${server}attendings`, headers),
-    user = await userRes.json(),
+    userData = await userRes.json(),
     yourEvents = await yourEventsRes.json();
-    if (user.error) {
+    if (userData.error) {
       Router.push('/');
     } else {
-      const events = yourEvents.map(event => event.event)
+      const events = yourEvents.map(event => event.event),
+      user = {...userData,
+        first_name: userData.full_name.split(' ')[0],
+        last_name: userData.full_name.split(' ')[1]
+      }
+
       return { user, events, yourEvents };
     }
   } catch (err) {

@@ -7,6 +7,7 @@ export default props => {
   [modify, setModify] = useState(false),
   [categories, setCategories] = useState(undefined),
   [temp, setTemp] = useState(undefined),
+  tempPicURL = "../static/blank-user.png",
   uploadRef = useRef(<input value='' />),
   editView = {
     position: 'relative',
@@ -15,8 +16,8 @@ export default props => {
   },
   pencil = {
     position: 'absolute',
-    right: props.type === 'image'? `42.5%` : '-1.5em',
-    top: props.type === 'image'? `42.5%` : props.size + 'vh',
+    right: props.type === 'image'? props.value === 'profile_pic'? `25%` : `42.5%` : '-1.5em',
+    top: props.type === 'image'? props.value === 'profile_pic'? `25%` : `42.5%` : props.size + 'vh',
     color: modify? '#000': hover? '#000' : '#ddd',
     fontSize: props.type === 'image'? '72px' : '16px',
     opacity: props.type === 'image' && !hover? '50%' : '100%',
@@ -137,9 +138,6 @@ export default props => {
             onKeyDown={keyPrompt}
           />
         </div>
-        // <input 
-        //   value={}
-        // />
         :
         <input
           onKeyDown={keyPrompt}
@@ -164,10 +162,14 @@ export default props => {
                 props.setFile(e.target.files[0]);
               }}
             />
-            <img src={props.update.image_link} alt={props.update.name} />
-            <div className="filename">
-              <h2>{props.file? props.file.name : ''}</h2>
-            </div>
+            {
+              props.editing && props.file? 
+              <div className="filename">
+                <h2>{props.file? props.file.name : ''}</h2>
+              </div>
+              :
+              props.value === 'profile_pic'? <div className="profile-pic"></div> : <img src={props.update[props.value]} alt={props.update.id} />
+            }
           </div>
           :
           props.type === 'select'?
@@ -194,12 +196,19 @@ export default props => {
             margin-bottom: 1em;
             display: ${props.editing && props.file? 'none' : 'inline-block'};
           }
+          .profile-pic {
+            border-radius: 15px;
+            min-width: 15rem;
+            min-height: 15rem;
+            display: inline-block;
+            background: url(${props.update.profile_pic? props.update.profile_pic : tempPicURL}) no-repeat center;
+            background-size: cover;
+          }
           .filename {
             margin-bottom: 1em;
             padding: 5em 7.5em;
             border: 1px solid #000;
             border-radius: 4px;
-            display: ${props.editing && props.file? 'inline-block' : 'none'}
           }
           #uploader {
             display: none;

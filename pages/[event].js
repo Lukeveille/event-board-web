@@ -74,9 +74,8 @@ const Event = props => {
         update={currentEvent}
         setUpdate={setCurrentEvent}
         editing={editing}
-        value="start"
+        value="image_link"
         type="image"
-        size={0.5}
       /> : ''}
       {over? <h3>{upcoming? 'Starts ' : 'This event started at '}
         <EditField
