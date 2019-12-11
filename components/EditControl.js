@@ -27,42 +27,24 @@ export default props => {
                   props.setError('error, see console');
                   console.error(error);
                 });
-              })
-            })
+              });
+            });
           } else {
             serverCall('PUT', `${props.path}/${props.update.id}`, props.update);
-          }
+          };
         }}
       >
         Save
       </a> - <a
         onClick={() => {
           props.setEditing(false);
-          props.setCurrentEvent(props.original);
+          props.setUpdate(props.original);
           props.setFile('')
         }}
       >
         Discard
       </a>
-      <div className="cancel">
-        <a
-          onClick={() => {
-            props.setCancelModal('block');
-          }}
-        >
-          <h3 className="cancel-btn" style={{display: 'inline-block'}}>Cancel Event</h3>
-        </a>
-      </div>
-      <style jsx>{`
-        .cancel-btn {
-          color: #d00;
-        }
-        .cancel-btn:hover {
-          color: #b00;
-          text-decoration: underline;
-      `}
-    </style>
     </div>
   :
-  <a onClick={() => props.setEditing(true)}>Edit</a>
-}
+  <a onClick={() => props.setEditing(true)}>Edit {props.label}</a>
+};

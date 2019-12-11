@@ -1,7 +1,5 @@
 import fetch from 'isomorphic-unfetch';
 import auth from '../utils/auth';
-import symbols from '../utils/symbols';
-import handleUpload from '../utils/handle-upload';
 import serverCall from '../utils/server-call';
 import dateTimeString from '../utils/date-time-string';
 import Router from 'next/router';
@@ -50,8 +48,8 @@ const Event = props => {
     <div className="two-col">
       <h3>{
         <EditField
-          currentEvent={currentEvent}
-          setCurrentEvent={setCurrentEvent}
+          update={currentEvent}
+          setUpdate={setCurrentEvent}
           editing={editing}
           value="category_name"
           size={0.5}
@@ -60,8 +58,8 @@ const Event = props => {
       }</h3>
       <h1>
         <EditField
-          currentEvent={currentEvent}
-          setCurrentEvent={setCurrentEvent}
+          update={currentEvent}
+          setUpdate={setCurrentEvent}
           editing={editing}
           value="name"
           size={1.8}
@@ -73,8 +71,8 @@ const Event = props => {
       <EditField
         file={file}
         setFile={setFile}
-        currentEvent={currentEvent}
-        setCurrentEvent={setCurrentEvent}
+        update={currentEvent}
+        setUpdate={setCurrentEvent}
         editing={editing}
         value="start"
         type="image"
@@ -82,8 +80,8 @@ const Event = props => {
       /> : ''}
       {over? <h3>{upcoming? 'Starts ' : 'This event started at '}
         <EditField
-          currentEvent={currentEvent}
-          setCurrentEvent={setCurrentEvent}
+          update={currentEvent}
+          setUpdate={setCurrentEvent}
           editing={editing}
           value="start"
           type="time"
@@ -92,8 +90,8 @@ const Event = props => {
       </h3> : ''}
       <div className="p">
         <EditField
-          currentEvent={currentEvent}
-          setCurrentEvent={setCurrentEvent}
+          update={currentEvent}
+          setUpdate={setCurrentEvent}
           editing={editing}
           value="description"
           type="textarea"
@@ -102,8 +100,8 @@ const Event = props => {
       </div>
       <h3>{over? 'Ends ' : 'This event ended '}
         <EditField
-          currentEvent={currentEvent}
-          setCurrentEvent={setCurrentEvent}
+          update={currentEvent}
+          setUpdate={setCurrentEvent}
           value="end"
           editing={editing}
           size={0.5}
@@ -119,7 +117,7 @@ const Event = props => {
         {props.user.error? '' : <h3>{currentEvent.user.email}</h3>}
       </article>
       <article style={{padding: 0}}>
-        {props.user.error? '' :
+        {props.user.error || !upcoming? '' :
         <div className="form-display">
           <button
             className="attend-btn"
@@ -155,8 +153,8 @@ const Event = props => {
           <div className="p">
             Capacity&nbsp;
             <EditField
-              currentEvent={currentEvent}
-              setCurrentEvent={setCurrentEvent}
+              update={currentEvent}
+              setUpdate={setCurrentEvent}
               editing={editing}
               value="limit"
               type="number"
@@ -176,18 +174,27 @@ const Event = props => {
     </aside>
     {owner && upcoming? <div className="two-col edit-btn">
       <EditControl
-        setCancelModal={setCancelModal}
         editing={editing}
         setEditing={setEditing}
         setLoading={setLoading}
-        setCurrentEvent={setCurrentEvent}
+        setUpdate={setCurrentEvent}
         setFile={setFile}
-        file={file}
         original={props.event}
         update={currentEvent}
+        file={file}
         path="events"
         image="image_link"
+        label="Event"
       />
+      {editing? <div className="cancel">
+        <a
+          onClick={() => {
+            setCancelModal('block');
+          }}
+        >
+          <h3 className="cancel-btn" style={{display: 'inline-block'}}>Cancel Event</h3>
+        </a>
+      </div> : ''}
     </div> : ''}
     <Modal
       show={cancelModal}
@@ -230,6 +237,9 @@ const Event = props => {
         article {
           padding-bottom: 2rem;
         }
+        .cancel {
+          padding: 2em;
+        }
         .cancel-btn {
           color: #d00;
         }
@@ -247,9 +257,6 @@ const Event = props => {
         }
         .edit-btn {
           margin-top: 3rem;
-        }
-        .cancel {
-          padding: 2em;
         }
         .p {
           margin: 1em 0;

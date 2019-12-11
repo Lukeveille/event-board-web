@@ -24,13 +24,13 @@ export default props => {
     display: props.file? 'none' : 'inline-block'
   },
   updateEvent = e => {
-    props.setCurrentEvent({...props.currentEvent, [props.value]: e.target.value })
+    props.setUpdate({...props.update, [props.value]: e.target.value })
   },
   keyPrompt = e => {
     if (e.keyCode === 13) {
       setModify(false);
     } else if (e.keyCode === 27) {
-      props.setCurrentEvent(temp);
+      props.setUpdate(temp);
       setModify(false);
     }
   };
@@ -56,7 +56,7 @@ export default props => {
       if (props.editing && props.type === 'image') {
         uploadRef.current.click();
       } else if (!modify && props.editing) {
-          setTemp(props.currentEvent);
+          setTemp(props.update);
           setModify(true);
         }
       }}
@@ -65,7 +65,7 @@ export default props => {
         props.type === 'textarea'?
         <textarea
           style={{resize: 'none'}}
-          value={props.currentEvent[props.value]}
+          value={props.update[props.value]}
           type="number"
           cols="70"
           rows="5"
@@ -78,31 +78,31 @@ export default props => {
           <input
             onKeyDown={keyPrompt}
             type="time"
-            value={dateTimeString(props.currentEvent[props.value])[3]}
+            value={dateTimeString(props.update[props.value])[3]}
             onChange={e => {
-              let timeString = props.currentEvent[props.value].split('T');
+              let timeString = props.update[props.value].split('T');
               timeString = `${timeString[0]}T${e.target.value}:00.000Z`;
-              props.setCurrentEvent({...props.currentEvent, [props.value]: timeString });
+              props.setUpdate({...props.update, [props.value]: timeString });
             }}
           />
           <input
             onKeyDown={keyPrompt}
             type="date"
-            value={dateTimeString(props.currentEvent[props.value])[4]}
+            value={dateTimeString(props.update[props.value])[4]}
             onChange={e => {
-              let dateString = props.currentEvent[props.value].split('T');
+              let dateString = props.update[props.value].split('T');
               dateString = `${e.target.value}T${dateString[1]}`;
-              props.setCurrentEvent({...props.currentEvent, [props.value]: dateString });
+              props.setUpdate({...props.update, [props.value]: dateString });
             }}
           />
         </div>
         :
         props.type === 'select'?
         <select
-          value={props.currentEvent[props.value]}
+          value={props.update[props.value]}
           onChange={e => {
-            props.setCurrentEvent({
-              ...props.currentEvent,
+            props.setUpdate({
+              ...props.update,
               category_name: e.target.value,
               category_id: categories.filter(cat => cat.name === e.target.value)[0].id
             });
@@ -114,10 +114,37 @@ export default props => {
         })}
         </select>
         :
+        props.type === 'username'?
+        <div>
+          <input 
+            value={props.update.first_name}
+            onChange={e => {
+              props.setUpdate({...props.update,
+                first_name: e.target.value,
+                full_name: `${e.target.value} ${props.update.last_name}`
+              })
+            }}
+            onKeyDown={keyPrompt}
+            />
+          <input 
+            value={props.update.last_name}
+            onChange={e => {
+              props.setUpdate({...props.update,
+                last_name: e.target.value,
+                full_name: `${props.update.first_name} ${e.target.value}`
+              })
+            }}
+            onKeyDown={keyPrompt}
+          />
+        </div>
+        // <input 
+        //   value={}
+        // />
+        :
         <input
           onKeyDown={keyPrompt}
-          value={props.currentEvent[props.value]}
-          size={props.type === "number"? 3 : props.currentEvent[props.value].length}
+          value={props.update[props.value]}
+          size={props.type === "number"? 3 : props.update[props.value].length}
           type={props.type? props.type : 'text'}
           onChange={updateEvent}
         /> 
@@ -125,7 +152,7 @@ export default props => {
       <div>
         {
           props.type === 'time'?
-          `${dateTimeString(props.currentEvent[props.value])[1]} ${dateTimeString(props.currentEvent[props.value])[0]}`
+          `${dateTimeString(props.update[props.value])[1]} ${dateTimeString(props.update[props.value])[0]}`
           :
           props.type === 'image'?
           <div>
@@ -137,7 +164,7 @@ export default props => {
                 props.setFile(e.target.files[0]);
               }}
             />
-            <img src={props.currentEvent.image_link} alt={props.currentEvent.name} />
+            <img src={props.update.image_link} alt={props.update.name} />
             <div className="filename">
               <h2>{props.file? props.file.name : ''}</h2>
             </div>
@@ -145,10 +172,10 @@ export default props => {
           :
           props.type === 'select'?
           <div>
-            - {props.currentEvent[props.value]} -
+            - {props.update[props.value]} -
           </div>
           :
-          props.currentEvent[props.value]
+          props.update[props.value]
         }
       </div>}
       {props.editing?

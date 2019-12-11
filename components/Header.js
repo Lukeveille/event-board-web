@@ -5,6 +5,7 @@ import { Cookies } from 'react-cookie';
 
 export default props => {
   const [menu, setMenu] = useState(false),
+  tempPicURL = "../static/blank-user.png",
   cookies = new Cookies();
 
   if (process.browser) window.onclick = () => {
@@ -38,7 +39,7 @@ export default props => {
         <section>
           <img
             className="profile-pic"
-            src={props.user.gravatar_url}
+            src={props.user.profile_pic? props.user.profile_pic : tempPicURL}
             alt={props.user.full_name}
             onClick={e => {
               setMenu(!menu);
